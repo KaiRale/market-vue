@@ -221,3 +221,34 @@
         @apply bg-background text-foreground;
     }
 }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-2px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+    animation: fadeIn 0.1s ease-out;
+}
+
+.fade-in-80 {
+    animation-fill-mode: both;
+    animation-duration: 0.1s;
+}
+
+.custom-select {
+    --radius: 6px;
+    --border: 1px solid hsl(var(--input));
+    --background: hsl(var(--background));
+    --foreground: hsl(var(--foreground));
+    --muted-foreground: hsl(var(--muted-foreground));
+    --primary: hsl(var(--primary));
+    --primary-foreground: hsl(var(--primary-foreground));
+    --ring: hsl(var(--ring));
+}
+
+/* Для работы с радиокнопками */
+.hidden {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}

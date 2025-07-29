@@ -67,9 +67,11 @@ class CategoryController extends Controller
     public function edit(Category $category)
     {
         $category = CategoryResource::make($category)->resolve();
-        $categories = CategoryResource::collection(Category::all()->except($category))->resolve();
+        $categories = Category::all()->except($category['id'])->keyBy('id');
 
-        return Inertia::render('admin/category/Edit', compact('category', 'categories'));
+        $categoryTree = Category::buildTree($categories);
+
+        return Inertia::render('admin/category/Edit', compact('category', 'categories', 'categoryTree'));
 
     }
 

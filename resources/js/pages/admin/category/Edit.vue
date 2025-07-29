@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import EntityTreeSelect from '@/components/EntityTreeSelect/EntityTreeSelect.vue';
+import { ref, watch, onMounted, defineProps } from 'vue';
 
 interface Category {
     id: number,
@@ -13,8 +14,9 @@ interface Category {
 }
 
 const props = defineProps<{
-    categories: array;
+    categories: object;
     category: Category;
+    categoryTree: object;
 }>();
 
 const form = useForm({
@@ -22,54 +24,168 @@ const form = useForm({
     parent_id: props.category.parent_id,
 });
 
+const page = usePage();
+const selectedCategory = ref<object | null>(null);
+
+onMounted(() => {
+    selectedCategory.value = props.category.parent_id != null ? props.categories[props.category.parent_id] : ref(null) ;
+});
+
 const handleSubmit = () =>{
     form.put(route('admin.categories.update', {category: props.category}))
 }
 
-const page = usePage();
+const handleSelection = (data) => {
+    form.parent_id = data?.id ?? null;
+}
 
+watch(
+    () => form.parent_id,
+    (newValue) => {
+        selectedCategory.value = newValue != null ? props.categories[newValue] : null;
+    }
+);
 </script>
 
 <template>
     <AdminLayout>
-        <form action="#" @submit.prevent="handleSubmit">
-            <div class="mb-4">
-                <Link :href="route('admin.categories.index')" class="inline-block border border-[#54589B] bg-[#6F74BA] px-3 py-2 text-purple-50"
-                    >Cancel
+        <form action="#" @submit.prevent="handleSubmit"  class="form-container">
+            <div class="form-actions">
+                <Link :href="route('admin.categories.index')" class="cancel-button">
+                    Cancel
                 </Link>
             </div>
 
-            <Alert v-if="page.props.flash.success" class="w-1/2 mb-4 bg-lime-200 border-lime-400 text-cyan-950">
+            <Alert v-if="page.props.flash.success" class="success-alert">
                 <AlertTitle>Success</AlertTitle>
                 <AlertDescription>
                     {{ page.props.flash.success }}
                 </AlertDescription>
             </Alert>
 
-            <div class="mb-4 w-1/4">
-                <Input type="text" v-model="form.title" class=" border border-[#B1B5F2] p-2" placeholder="Title..." />
+            <div class="form-group">
+                <Input
+                    type="text"
+                    v-model="form.title"
+                    class="form-input"
+                    placeholder="Title..." />
 
-                <div class="text-sm text-red-600" v-if="form.errors.title">{{ form.errors.title }}</div>
+                <div class="error-message" v-if="form.errors.title">
+                    {{ form.errors.title }}
+                </div>
             </div>
-            <div class="mb-4">
-                <Select v-model="form.parent_id">
-                    <SelectTrigger class="w-1/4">
-                        <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectGroup>
-                            <SelectItem v-for="category in props.categories" :value="category.id">{{category.title}}</SelectItem>
-                        </SelectGroup>
-                    </SelectContent>
-                </Select>
-                <div class="text-sm text-red-600" v-if="form.errors.parent_id">{{ form.errors.parent_id }}</div>
 
+            <div class="form-group">
+                <EntityTreeSelect
+                    :selectedEntity="selectedCategory"
+                    :entityTree="categoryTree"
+                    nameSelect="category"
+                    @update:selected-entity="handleSelection"
+                />
+                <div class="error-message" v-if="form.errors.parent_id">
+                    {{ form.errors.parent_id }}
+                </div>
             </div>
-            <div class="mb-4">
-                <Button type="submit" :disabled="form.processing" class="inline-block border border-[#1B206A] bg-[#252B7D] px-3 py-2 text-purple-50"> Edit </Button>
+            <div class="form-actions">
+                <Button
+                    type="submit"
+                    :disabled="form.processing"
+                    class="submit-button"
+                >
+                    Update
+                </Button>
             </div>
         </form>
     </AdminLayout>
 </template>
 
-<style scoped></style>
+<style scoped>
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.form-actions {
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+    width: 100%;
+    max-width: 320px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    background-color: #fff;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 1px #3b82f6;
+}
+
+.cancel-button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #6b7280;
+    background-color: #6b7280;
+    color: white;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.cancel-button:hover {
+    background-color: #4b5563;
+    border-color: #4b5563;
+}
+
+.submit-button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #1e40af;
+    background-color: #1e40af;
+    color: white;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.submit-button:hover:not(:disabled) {
+    background-color: #1e3a8a;
+    border-color: #1e3a8a;
+}
+
+.submit-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.success-alert {
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid #86efac;
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.error-message {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #ef4444;
+}
+</style>

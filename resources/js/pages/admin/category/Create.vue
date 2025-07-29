@@ -18,6 +18,9 @@ const form = useForm({
     parent_id: null,
 });
 
+const page = usePage();
+const selectedCategory = ref(null);
+
 const handleSubmit = () =>{
     form.post(route('admin.categories.store'), {
         onSuccess: () => form.reset()
@@ -27,9 +30,6 @@ const handleSelection = (data) => {
     form.parent_id = data?.id ?? null;
     selectedCategory.value = data ?? null;
 }
-
-const page = usePage();
-const selectedCategory = ref(null);
 
 watch(
     () => form.parent_id,

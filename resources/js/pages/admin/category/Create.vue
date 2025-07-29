@@ -5,14 +5,18 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { watch, ref } from "vue";
 
-defineProps<{
-    categories: array;
+import EntityTreeSelect from '@/components/EntityTreeSelect/EntityTreeSelect.vue';
+
+const props = defineProps<{
+    categoryTree: array;
+    categories: object;
 }>();
 
 const form = useForm({
     title: '',
-    parent_id: '',
+    parent_id: null,
 });
 
 const handleSubmit = () =>{
@@ -20,13 +24,33 @@ const handleSubmit = () =>{
         onSuccess: () => form.reset()
     })
 }
-
+const handleSelection = (data) => {
+    form.parent_id = data.id;
+}
 const page = usePage();
+
+const selectedCategory = ref({});
+
+watch(
+    () => form.parent_id,
+    (newValue) => {
+        selectedCategory.value = props.categories[newValue]
+    }
+);
+
 
 </script>
 
 <template>
     <AdminLayout>
+
+        <EntityTreeSelect
+            :selectedEntity="selectedCategory"
+            :entityTree="categoryTree"
+            nameSelect="category"
+            @update:selected-entity="handleSelection"
+        ></EntityTreeSelect>
+
         <form action="#" @submit.prevent="handleSubmit">
             <div class="mb-4">
                 <Link :href="route('admin.categories.index')" class="inline-block border border-[#54589B] bg-[#6F74BA] px-3 py-2 text-purple-50"
@@ -53,8 +77,13 @@ const page = usePage();
                     </SelectTrigger>
                     <SelectContent>
                         <SelectGroup>
-                            <SelectItem :value="null">Not selected</SelectItem>
-                            <SelectItem v-for="category in categories" :value="category.id">{{category.title}}</SelectItem>
+                            <SelectItem :value="null" selected>Not selected</SelectItem>
+                            <SelectItem v-for="category in categoryTree" :value="category.id">
+                                <p v-if="category.parent_id">
+                                    {{categoryTree[category.parent_id].title}} /
+                                </p>
+                                <p>{{category.title}}</p>
+                            </SelectItem>
                         </SelectGroup>
                     </SelectContent>
                 </Select>
@@ -64,8 +93,12 @@ const page = usePage();
             <div class="mb-4">
                 <Button type="submit" :disabled="form.processing" class="inline-block border border-[#1B206A] bg-[#252B7D] px-3 py-2 text-purple-50"> Create </Button>
             </div>
+
+
         </form>
     </AdminLayout>
 </template>
 
-<style scoped></style>
+<style scoped>
+
+</style>

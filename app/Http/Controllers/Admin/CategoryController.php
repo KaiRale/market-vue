@@ -30,11 +30,10 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        $categories = CategoryResource::collection(Category::all())->resolve();
+        $categories = Category::all()->keyBy('id');
+        $categoryTree = Category::buildTree($categories);
 
-        return Inertia::render('admin/category/Create',[
-            'categories' => $categories
-        ]);
+        return Inertia::render('admin/category/Create', compact('categoryTree', 'categories'));
     }
 
     /**

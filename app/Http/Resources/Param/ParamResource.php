@@ -19,7 +19,7 @@ class ParamResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'filter_type' => $this->filter_type,
-            'filter_type_title' => ParamFilterTypeEnum::map()[$this->filter_type],
+            'filter_type_title' => $this->filter_type_title,
         ];
     }
 }

@@ -29,8 +29,8 @@ const onDelete = (id: number) => {
 
 <template>
     <AdminLayout>
-        <div class="form-container">
-            <div class="form-actions">
+        <div class="main-container">
+            <div class="main-actions">
                 <Link :href="route('admin.categories.create')" class="submit-button">
                     Add Category
                 </Link>
@@ -42,7 +42,7 @@ const onDelete = (id: number) => {
                 </AlertDescription>
             </Alert>
             <div>
-                <Table cclass="table-wrapper">
+                <Table class="table-wrapper">
                     <TableHeader>
                         <TableRow class="header-row">
                             <TableHead>ID</TableHead>
@@ -54,12 +54,14 @@ const onDelete = (id: number) => {
                     <TableBody>
                         <TableRow v-for="category in categories" :key="category.id" class="body-row">
                             <TableCell>{{ category.id }}</TableCell>
-                            <TableCell class="font-medium">
-                                {{ category.title }}
+                            <TableCell>
+                                <Link :href="route('admin.categories.show', { id: category.id })">
+                                    {{ category.title }}
+                                </Link>
                             </TableCell>
                             <TableCell>{{ category.parent_id }}</TableCell>
                             <TableCell class="actions-cell">
-                                <Link :href="route('admin.categories.edit', { id: category.id })">
+                                <Link :href="route('admin.categories.edit', { category: category.id })">
                                     <Button class="edit-button">Edit</Button>
                                 </Link>
 
@@ -90,14 +92,14 @@ const onDelete = (id: number) => {
 </template>
 
 <style scoped>
-.form-container {
+.main-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 1rem;
     font-family: system-ui, -apple-system, sans-serif;
 }
 
-.form-actions {
+.main-actions {
     margin-bottom: 1.5rem;
 }
 

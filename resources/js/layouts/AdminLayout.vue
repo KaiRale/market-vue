@@ -17,7 +17,7 @@ import { Link } from '@inertiajs/vue3';
                 <Link :href="route('admin.product-parents.index')" class="block p-4 border-b border-[#7C5CA8]">Product Group</Link>
                 <Link :href="route('admin.products.index')" class="block p-4 border-b border-[#7C5CA8]">Products</Link>
                 <Link :href="route('admin.categories.index')" class="block p-4 border-b border-[#7C5CA8]">Category</Link>
-                <Link :href="route('admin.params.index')" class="block p-4 border-b border-[#7C5CA8]">Specifications</Link>
+                <Link :href="route('admin.params.index')" class="block p-4 border-b border-[#7C5CA8]">Parameters</Link>
             </nav>
         </aside>
         <article class="w-3/4 bg-purple-50 text-[#060B42] p-4">

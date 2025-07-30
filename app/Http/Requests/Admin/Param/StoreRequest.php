@@ -18,7 +18,7 @@ class StoreRequest extends FormRequest
     {
         return [
             'title'=> 'required|string',
-            'filter_type'=> 'nullable|integer|in:' . ParamFilterTypeEnum::valuesAsStrings(),
+            'filter_type'=> 'integer|in:' . ParamFilterTypeEnum::valuesAsStrings(),
         ];
     }
 }

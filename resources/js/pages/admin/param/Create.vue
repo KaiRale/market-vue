@@ -77,7 +77,7 @@ watch(() => [form.title, form.filter_type], () => {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectGroup>
-                            <SelectItem :value="null" >
+                            <SelectItem :value="null" disabled>
                                 Select filter type...
                             </SelectItem>
                             <SelectItem v-for="filterType in filterTypes" :value="filterType.value">
@@ -86,6 +86,10 @@ watch(() => [form.title, form.filter_type], () => {
                         </SelectGroup>
                     </SelectContent>
                 </Select>
+
+                <div class="error-message" v-if="form.errors.filter_type">
+                    {{ form.errors.filter_type }}
+                </div>
             </div>
             <div class="form-actions">
                 <Button

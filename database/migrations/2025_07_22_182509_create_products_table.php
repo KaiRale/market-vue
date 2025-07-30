@@ -20,7 +20,7 @@ return new class extends Migration
             $table->decimal('old_price')->nullable(); // for sales view
             $table->unsignedBigInteger('qty');
             $table->foreignId('category_id')->index()->constrained('categories');
-            $table->foreignId('product_parent_id')->index()->constrained('product_parents');
+            $table->foreignId('product_group_id')->index()->constrained('product_groups');
             $table->timestamps();
         });
     }

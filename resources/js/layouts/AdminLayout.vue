@@ -14,7 +14,7 @@ import { Link } from '@inertiajs/vue3';
         <aside class="w-1/4 bg-[#200841] text-purple-50 min-h-screen">
             <nav>
                 <Link :href="route('dashboard')" class="block p-4 border-b border-[#7C5CA8]">Dashboard</Link>
-                <Link :href="route('admin.product-parents.index')" class="block p-4 border-b border-[#7C5CA8]">Product Group</Link>
+                <Link :href="route('admin.product-groups.index')" class="block p-4 border-b border-[#7C5CA8]">Product Groups</Link>
                 <Link :href="route('admin.products.index')" class="block p-4 border-b border-[#7C5CA8]">Products</Link>
                 <Link :href="route('admin.categories.index')" class="block p-4 border-b border-[#7C5CA8]">Category</Link>
                 <Link :href="route('admin.params.index')" class="block p-4 border-b border-[#7C5CA8]">Parameters</Link>

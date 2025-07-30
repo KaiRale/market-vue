@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ProductParent extends Model
+class ProductGroup extends Model
 {
     //
 }

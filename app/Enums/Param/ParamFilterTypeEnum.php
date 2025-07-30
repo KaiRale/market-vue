@@ -26,5 +26,24 @@ enum ParamFilterTypeEnum: int
     {
         return array_combine(self::values(), self::names());
     }
+
+    public static function collection(): array
+    {
+        $arr = [];
+
+        foreach (self::map() as $value => $title) {
+            $arr[] = [
+                'title' => $title,
+                'value' => $value,
+            ];
+        }
+
+        return $arr;
+    }
+
+    public static function valuesAsStrings(): string
+    {
+        return implode(',', self::values());
+    }
 }
 

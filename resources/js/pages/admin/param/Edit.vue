@@ -3,50 +3,40 @@ import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { watch, ref, defineProps } from 'vue';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { defineProps, ref, watch } from 'vue';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-import EntityTreeSelect from '@/components/EntityTreeSelect/EntityTreeSelect.vue';
+interface Param {
+    id: number,
+    title: string,
+    filter_type: number
+}
 
 const props = defineProps<{
-    categoryTree: array;
-    categories: object;
+    filterTypes: object;
+    param: Param;
 }>();
 
 const form = useForm({
-    title: '',
-    parent_id: null,
+    title: props.param.title,
+    filter_type: props.param.filter_type,
 });
 
 const page = usePage();
-const selectedCategory = ref(null);
 const isSuccess = ref(false);
 
 const handleSubmit = () =>{
-    form.post(route('admin.categories.store'), {
+    console.log(form)
+    form.put(route('admin.params.update', {param: props.param}), {
         onSuccess: () => {
-            form.reset();
-            isSuccess.value = true;
+            isSuccess.value = true
         }
     })
 }
 
-const handleSelection = (data) => {
-    form.parent_id = data?.id ?? null;
-    selectedCategory.value = data ?? null;
-}
-
-watch(
-    () => form.parent_id,
-    (newValue) => {
-        selectedCategory.value = newValue !== null ? props.categories[newValue] : null;
-    }
-);
-
-watch(() => [form.title, form.parent_id], () => {
-    if (form.title !== '' || form.parent_id !== null) {
-        isSuccess.value = false;
-    }
+watch(() => form.data(), () => {
+    isSuccess.value = false
 }, { deep: true });
 </script>
 
@@ -54,7 +44,7 @@ watch(() => [form.title, form.parent_id], () => {
     <AdminLayout>
         <form action="#" @submit.prevent="handleSubmit"  class="form-container">
             <div class="form-actions">
-                <Link :href="route('admin.categories.index')" class="cancel-button">
+                <Link :href="route('admin.params.index')" class="cancel-button">
                     Cancel
                 </Link>
             </div>
@@ -79,15 +69,21 @@ watch(() => [form.title, form.parent_id], () => {
             </div>
 
             <div class="form-group">
-                <EntityTreeSelect
-                    :selectedEntity="selectedCategory"
-                    :entityTree="categoryTree"
-                    nameSelect="category"
-                    @update:selected-entity="handleSelection"
-                />
-                <div class="error-message" v-if="form.errors.parent_id">
-                    {{ form.errors.parent_id }}
-                </div>
+                <Select v-model="form.filter_type">
+                    <SelectTrigger class="bg-white">
+                        <SelectValue placeholder="Select filter type..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectItem :value="null" >
+                                Select filter type...
+                            </SelectItem>
+                            <SelectItem v-for="filterType in filterTypes" :value="filterType.value">
+                                {{filterType.title}}
+                            </SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
             </div>
             <div class="form-actions">
                 <Button
@@ -95,11 +91,9 @@ watch(() => [form.title, form.parent_id], () => {
                     :disabled="form.processing"
                     class="submit-button"
                 >
-                    Create
+                    Update
                 </Button>
             </div>
-
-
         </form>
     </AdminLayout>
 </template>
@@ -193,4 +187,5 @@ watch(() => [form.title, form.parent_id], () => {
     font-size: 0.875rem;
     color: #ef4444;
 }
+
 </style>

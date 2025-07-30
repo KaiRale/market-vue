@@ -4,26 +4,30 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { watch, ref, defineProps } from 'vue';
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
+import { ref, watch } from 'vue';
 
-import EntityTreeSelect from '@/components/EntityTreeSelect/EntityTreeSelect.vue';
-
-const props = defineProps<{
-    categoryTree: array;
-    categories: object;
+defineProps<{
+    filterTypes: array;
 }>();
 
 const form = useForm({
     title: '',
-    parent_id: null,
+    filter_type: null,
 });
 
 const page = usePage();
-const selectedCategory = ref(null);
 const isSuccess = ref(false);
 
 const handleSubmit = () =>{
-    form.post(route('admin.categories.store'), {
+    form.post(route('admin.params.store'), {
         onSuccess: () => {
             form.reset();
             isSuccess.value = true;
@@ -31,20 +35,8 @@ const handleSubmit = () =>{
     })
 }
 
-const handleSelection = (data) => {
-    form.parent_id = data?.id ?? null;
-    selectedCategory.value = data ?? null;
-}
-
-watch(
-    () => form.parent_id,
-    (newValue) => {
-        selectedCategory.value = newValue !== null ? props.categories[newValue] : null;
-    }
-);
-
-watch(() => [form.title, form.parent_id], () => {
-    if (form.title !== '' || form.parent_id !== null) {
+watch(() => [form.title, form.filter_type], () => {
+    if (form.title !== '' || form.filter_type !== null) {
         isSuccess.value = false;
     }
 }, { deep: true });
@@ -54,7 +46,7 @@ watch(() => [form.title, form.parent_id], () => {
     <AdminLayout>
         <form action="#" @submit.prevent="handleSubmit"  class="form-container">
             <div class="form-actions">
-                <Link :href="route('admin.categories.index')" class="cancel-button">
+                <Link :href="route('admin.params.index')" class="cancel-button">
                     Cancel
                 </Link>
             </div>
@@ -79,15 +71,21 @@ watch(() => [form.title, form.parent_id], () => {
             </div>
 
             <div class="form-group">
-                <EntityTreeSelect
-                    :selectedEntity="selectedCategory"
-                    :entityTree="categoryTree"
-                    nameSelect="category"
-                    @update:selected-entity="handleSelection"
-                />
-                <div class="error-message" v-if="form.errors.parent_id">
-                    {{ form.errors.parent_id }}
-                </div>
+                <Select v-model="form.filter_type">
+                    <SelectTrigger class="bg-white">
+                        <SelectValue placeholder="Select filter type..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectItem :value="null" >
+                                Select filter type...
+                            </SelectItem>
+                            <SelectItem v-for="filterType in filterTypes" :value="filterType.value">
+                                {{filterType.title}}
+                            </SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
             </div>
             <div class="form-actions">
                 <Button

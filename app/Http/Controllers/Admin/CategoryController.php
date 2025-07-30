@@ -45,7 +45,6 @@ class CategoryController extends Controller
         $data = $request->validated();
         $category = CategoryService::store($data);
 
-        // resolve - чтобы дополнительно не оборачиволось в ключ дата
         $category = CategoryResource::make($category)->resolve();
 
         return back()->with('success', "Category $category[title] created successfully");

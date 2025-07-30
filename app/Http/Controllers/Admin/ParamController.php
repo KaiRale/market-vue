@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\Param\ParamFilterTypeEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Param\StoreRequest;
 use App\Http\Requests\Admin\Param\UpdateRequest;
 use App\Http\Resources\Param\ParamResource;
 use App\Models\Param;
 use App\Services\ParamService;
-use Illuminate\Http\Response;
 use Inertia\Inertia;
 
 class ParamController extends Controller
@@ -29,7 +29,8 @@ class ParamController extends Controller
      */
     public function create()
     {
-        return Inertia::render('admin/param/Create');
+        $filterTypes = ParamFilterTypeEnum::collection();
+        return Inertia::render('admin/param/Create', compact('filterTypes'));
     }
 
     /**
@@ -40,8 +41,7 @@ class ParamController extends Controller
         $data = $request->validated();
         $param = ParamService::store($data);
 
-        // resolve - чтобы дополнительно не оборачиволось в ключ дата
-        return ParamResource::make($param)->resolve();
+        return back()->with('success', "Parameter $param[title] created successfully");
     }
 
     /**
@@ -60,8 +60,9 @@ class ParamController extends Controller
     public function edit(Param $param)
     {
         $param = ParamResource::make($param)->resolve();
+        $filterTypes = ParamFilterTypeEnum::collection();
 
-        return Inertia::render('admin/param/Edit', compact('param'));
+        return Inertia::render('admin/param/Edit', compact('param', 'filterTypes'));
 
     }
 
@@ -73,8 +74,7 @@ class ParamController extends Controller
         $data = $request->validated();
         $param = ParamService::update($param, $data);
 
-        // resolve - чтобы дополнительно не оборачиволось в ключ дата
-        return ParamResource::make($param)->resolve();
+        return redirect()->back()->with('success', "Parameter $param[title] updated successfully");
     }
 
     /**
@@ -84,8 +84,7 @@ class ParamController extends Controller
     {
         $param->delete();
 
-        return response()->json([
-            'message' => 'Param deleted successfully'
-        ], Response::HTTP_OK);
+        return redirect()->back()->with('success', "Category deleted successfully");
+
     }
 }

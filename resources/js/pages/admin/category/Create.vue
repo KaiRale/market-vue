@@ -4,7 +4,7 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { watch, ref } from "vue";
+import { watch, ref, defineProps } from 'vue';
 
 import EntityTreeSelect from '@/components/EntityTreeSelect/EntityTreeSelect.vue';
 
@@ -20,12 +20,17 @@ const form = useForm({
 
 const page = usePage();
 const selectedCategory = ref(null);
+const isSuccess = ref(false);
 
 const handleSubmit = () =>{
     form.post(route('admin.categories.store'), {
-        onSuccess: () => form.reset()
+        onSuccess: () => {
+            form.reset();
+            isSuccess.value = true
+        }
     })
 }
+
 const handleSelection = (data) => {
     form.parent_id = data?.id ?? null;
     selectedCategory.value = data ?? null;
@@ -38,7 +43,11 @@ watch(
     }
 );
 
-
+watch(() => [form.title, form.parent_id], () => {
+    if (form.title !== '' || form.parent_id !== null) {
+        isSuccess.value = false;
+    }
+}, { deep: true });
 </script>
 
 <template>
@@ -50,7 +59,7 @@ watch(
                 </Link>
             </div>
 
-            <Alert v-if="page.props.flash.success" class="success-alert">
+            <Alert v-if="page.props.flash.success && isSuccess" class="success-alert">
                 <AlertTitle>Success</AlertTitle>
                 <AlertDescription>
                     {{ page.props.flash.success }}

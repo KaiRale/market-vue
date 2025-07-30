@@ -26,13 +26,18 @@ const form = useForm({
 
 const page = usePage();
 const selectedCategory = ref<object | null>(null);
+const isSuccess = ref(false);
 
 onMounted(() => {
     selectedCategory.value = props.category.parent_id != null ? props.categories[props.category.parent_id] : ref(null) ;
 });
 
 const handleSubmit = () =>{
-    form.put(route('admin.categories.update', {category: props.category}))
+    form.put(route('admin.categories.update', {category: props.category}), {
+        onSuccess: () => {
+            isSuccess.value = true
+        }
+    })
 }
 
 const handleSelection = (data) => {
@@ -45,6 +50,11 @@ watch(
         selectedCategory.value = newValue != null ? props.categories[newValue] : null;
     }
 );
+
+watch(() => form.data(), () => {
+    isSuccess.value = false
+}, { deep: true });
+
 </script>
 
 <template>
@@ -56,7 +66,7 @@ watch(
                 </Link>
             </div>
 
-            <Alert v-if="page.props.flash.success" class="success-alert">
+            <Alert v-if="page.props.flash.success && isSuccess" class="success-alert">
                 <AlertTitle>Success</AlertTitle>
                 <AlertDescription>
                     {{ page.props.flash.success }}

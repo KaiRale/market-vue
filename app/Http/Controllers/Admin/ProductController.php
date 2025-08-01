@@ -6,7 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Product\StoreRequest;
 use App\Http\Requests\Admin\Product\UpdateRequest;
 use App\Http\Resources\Product\ProductResource;
+use App\Http\Resources\ProductGroup\ProductGroupResource;
+use App\Models\Category;
+use App\Models\Image;
 use App\Models\Product;
+use App\Models\ProductGroup;
 use App\Services\ProductService;
 use Illuminate\Http\Response;
 use Inertia\Inertia;
@@ -29,7 +33,11 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return Inertia::render('admin/product/Create');
+        $categories = Category::all()->keyBy('id');
+        $categoryTree = Category::buildTree($categories);
+        $productGroups = ProductGroupResource::collection(ProductGroup::all())->resolve();
+//        $images = Image::with(['produtc'])
+        return Inertia::render('admin/product/Create', compact('categories','categoryTree', 'productGroups'));
     }
 
     /**
@@ -38,10 +46,10 @@ class ProductController extends Controller
     public function store(StoreRequest $request)
     {
         $data = $request->validated();
-        $product = ProductService::store($data);
+dd($data);
+        $product = ProductService::store($data['product']);
 
-        // resolve - чтобы дополнительно не оборачиволось в ключ дата
-        return ProductResource::make($product)->resolve();
+        return back()->with('success', "Product $product[title] created successfully");
     }
 
     /**
@@ -60,8 +68,11 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $product = ProductResource::make($product)->resolve();
+        $categories = Category::all()->keyBy('id');
+        $categoryTree = Category::buildTree($categories);
+        $productGroups = ProductGroup::all()->keyBy('id');
 
-        return Inertia::render('admin/product/Edit', compact('product'));
+        return Inertia::render('admin/product/Edit', compact('product', 'categories', 'categories', 'categoryTree', 'productGroups'));
 
     }
 
@@ -71,10 +82,10 @@ class ProductController extends Controller
     public function update(UpdateRequest $request, Product $product)
     {
         $data = $request->validated();
-        $product = ProductService::update($product, $data);
+        $product = ProductService::update($product, $data['product']);
 
-        // resolve - чтобы дополнительно не оборачиволось в ключ дата
-        return ProductResource::make($product)->resolve();
+        return redirect()->back()->with('success', "Product $product[title] updated successfully");
+
     }
 
     /**
@@ -84,8 +95,7 @@ class ProductController extends Controller
     {
         $product->delete();
 
-        return response()->json([
-           'message' => 'Product deleted successfully'
-        ], Response::HTTP_OK);
+        return redirect()->back()->with('success', "Product deleted successfully");
+
     }
 }

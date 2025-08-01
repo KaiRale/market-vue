@@ -83,7 +83,6 @@ class CategoryController extends Controller
 
         $category = CategoryService::update($category, $data);
 
-        // resolve - чтобы дополнительно не оборачиволось в ключ дата
         $category = CategoryResource::make($category)->resolve();
 
         return redirect()->back()->with('success', "Category $category[title] updated successfully");

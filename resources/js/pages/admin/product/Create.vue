@@ -201,10 +201,10 @@ watch(
                        @change="handleImageChange"
                 />
 
-                <div v-for="( image,index) in form.images" :key="index">
+                <div v-for="(image, index) in form.images" :key="index">
                     <span v-if="form.errors[`images.${index}`]" class="text-red-500">
-            {{ form.errors[`images.${index}`] }}
-        </span>
+                        {{ form.errors[`images.${index}`] }}
+                    </span>
                 </div>
             </div>
 

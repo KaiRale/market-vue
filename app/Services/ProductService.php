@@ -8,7 +8,10 @@ class ProductService
 {
     public static function store(array $data): Product
     {
-        return Product::create($data);
+        $product = Product::create($data['product']);
+        ImageService::storeBatch($product, $data['images']);
+
+        return $product;
     }
 
     public static function update(Product $product, array $data): Product

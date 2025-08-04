@@ -23,7 +23,8 @@ class UpdateRequest extends FormRequest
             'product.qty' => ['required','numeric'],
             'product.category_id' => ['required','integer','exists:categories,id'],
             'product.product_group_id' => ['required','integer','exists:product_groups,id'],
-
+            'images' => ['nullable','array'],
+            'images.*' => ['image','mimes:jpeg,png,jpg,gif,svg'],
         ];
     }
 }

@@ -4,18 +4,15 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Link } from '@inertiajs/vue3';
 
 defineProps<{
-    param: object;
+    product: object;
 }>();
-
 </script>
 
 <template>
     <AdminLayout>
         <div class="main-container">
             <div class="main-actions">
-                <Link :href="route('admin.params.index')" class="submit-button">
-                    Back
-                </Link>
+                <Link :href="route('admin.products.index')" class="submit-button"> Back </Link>
             </div>
 
             <div>
@@ -24,29 +21,55 @@ defineProps<{
                         <TableRow class="body-row">
                             <TableCell>ID</TableCell>
                             <TableCell>
-                                {{ param.id }}
+                                {{ product.id }}
                             </TableCell>
                         </TableRow>
                         <TableRow class="body-row">
                             <TableCell>Title</TableCell>
                             <TableCell>
-                                {{ param.title }}
+                                {{ product.title }}
                             </TableCell>
                         </TableRow>
                         <TableRow class="body-row">
-                            <TableCell>Filter type</TableCell>
+                            <TableCell>Description</TableCell>
                             <TableCell>
-                                {{ param.filter_type }}
+                                {{ product.description }}
                             </TableCell>
                         </TableRow>
                         <TableRow class="body-row">
-                            <TableCell>Filter type title</TableCell>
+                            <TableCell>Content</TableCell>
                             <TableCell>
-                                {{ param.filter_type_title }}
+                                {{ product.content }}
+                            </TableCell>
+                        </TableRow>
+                        <TableRow class="body-row">
+                            <TableCell>Price</TableCell>
+                            <TableCell>
+                                {{ product.price }}
+                            </TableCell>
+                        </TableRow>
+                        <TableRow class="body-row">
+                            <TableCell>Old price</TableCell>
+                            <TableCell>
+                                {{ product.old_price }}
+                            </TableCell>
+                        </TableRow>
+                        <TableRow class="body-row">
+                            <TableCell>Quantity</TableCell>
+                            <TableCell>
+                                {{ product.qty }}
                             </TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
+            </div>
+
+            <div>
+                <div class="flex justify-between">
+                    <div v-for="image in product.images">
+                        <img :src="image.url" :alt="product.title" />
+                    </div>
+                </div>
             </div>
         </div>
     </AdminLayout>
@@ -57,7 +80,10 @@ defineProps<{
     max-width: 1200px;
     margin: 0 auto;
     padding: 1rem;
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family:
+        system-ui,
+        -apple-system,
+        sans-serif;
 }
 
 .main-actions {

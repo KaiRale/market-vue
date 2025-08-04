@@ -3,13 +3,15 @@ import EntityTreeSelect from '@/components/EntityTreeSelect/EntityTreeSelect.vue
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncrement, NumberFieldInput } from '@/components/ui/number-field';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
+import axios from 'axios';
+import { X } from 'lucide-vue-next';
 import { defineProps, ref, watch } from 'vue';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 
 const props = defineProps<{
     categories: array;
@@ -31,17 +33,17 @@ const form = useForm({
         category_id: props.product.category_id,
         product_group_id: props.product.product_group_id,
     },
-    images: null,
-    params: []
+    images: props.product.images,
+    params: [],
 });
 
 const page = usePage();
 const isSuccess = ref(false);
 const selectedCategory = props.categories[props.product.category_id];
-const images = ref(null);
+const images = ref(props.product.images | null);
 
 const handleSubmit = () => {
-    form.put(route('admin.products.update', {product: props.product.id}), {
+    form.put(route('admin.products.update', { product: props.product.id }), {
         onSuccess: () => {
             isSuccess.value = true;
         },
@@ -51,6 +53,17 @@ const handleSubmit = () => {
 const handleSelection = (data) => {
     form.product.category_id = data?.id ?? null;
     selectedCategory.value = data ?? null;
+};
+
+const handleImageChange = (images) => {
+    form.images = images.target.files;
+};
+
+const deleteImage = (image) => {
+    axios.delete(route('admin.images.destroy', image.id)).then((res) => {
+        form.images = form.images.filter((productImage) => productImage.id != image.id);
+        images.value = form.images;
+    });
 };
 
 watch(
@@ -79,7 +92,7 @@ watch(
                 <Input type="text" v-model="form.product.title" class="form-input" placeholder="Title..." />
 
                 <div class="error-message" v-if="form.errors['product.title']">
-                    {{ form.errors['product.title']}}
+                    {{ form.errors['product.title'] }}
                 </div>
             </div>
 
@@ -186,6 +199,29 @@ watch(
                 </div>
             </div>
 
+            <div class="form-group">
+                <Label for="images">Images</Label>
+                <Input id="images" multiple type="file" class="bg-white" @change="handleImageChange" />
+
+                <div v-for="(image, index) in images" :key="index">
+                    <span v-if="form.errors[`images.${index}`]" class="text-red-500">
+                        {{ form.errors[`images.${index}`] }}
+                    </span>
+                </div>
+            </div>
+
+            <div>
+                <div class="mb-4 flex justify-between">
+                    <div v-for="image in images">
+                        <div class="text-right">
+                            <Link @click.prevent="deleteImage(image)" href="#" class="inline-block">
+                                <X />
+                            </Link>
+                        </div>
+                        <img :src="image.url" :alt="product.title" class="mb-4" />
+                    </div>
+                </div>
+            </div>
             <!--            <div class="form-group">-->
             <!--                <Label for="images">Images</Label>-->
             <!--                <Input id="images"-->

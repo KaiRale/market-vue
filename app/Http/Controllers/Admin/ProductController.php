@@ -46,8 +46,8 @@ class ProductController extends Controller
     public function store(StoreRequest $request)
     {
         $data = $request->validated();
-dd($data);
-        $product = ProductService::store($data['product']);
+
+        $product = ProductService::store($data);
 
         return back()->with('success', "Product $product[title] created successfully");
     }

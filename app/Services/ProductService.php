@@ -17,7 +17,8 @@ class ProductService
     public static function update(Product $product, array $data): Product
     {
         $product->update($data);
-        // fresh - если у объекта будут отношения, надо чтобы продукту они подгрузились
+        ImageService::storeBatch($product, $data['new_images']);
+
         return $product->fresh();
     }
 }

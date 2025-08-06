@@ -37,10 +37,8 @@ const form = useForm({
 const page = usePage();
 const isSuccess = ref(false);
 const selectedCategory = ref(null);
-const images = ref(null);
 
 const handleSubmit = () => {
-    console.log(form)
     form.post(route('admin.products.store'), {
         onSuccess: () => {
             form.reset();
@@ -55,7 +53,6 @@ const handleSelection = (data) => {
 };
 
 const handleImageChange = (images) => {
-    console.log(images.target.files);
     form.images = images.target.files;
 }
 

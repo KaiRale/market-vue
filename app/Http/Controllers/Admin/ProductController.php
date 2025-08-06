@@ -81,10 +81,11 @@ class ProductController extends Controller
      */
     public function update(UpdateRequest $request, Product $product)
     {
+//        dd($request);
         $data = $request->validated();
-        $product = ProductService::update($product, $data['product']);
+        $product = ProductService::update($product, $data);
 
-        return redirect()->back()->with('success', "Product $product[title] updated successfully");
+        return ;
 
     }
 

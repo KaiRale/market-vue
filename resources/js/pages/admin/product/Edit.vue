@@ -12,6 +12,7 @@ import { Link, useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { X } from 'lucide-vue-next';
 import { defineProps, ref, watch } from 'vue';
+import { router } from '@inertiajs/vue3'
 
 const props = defineProps<{
     categories: array;
@@ -23,7 +24,7 @@ const props = defineProps<{
 }>();
 
 const form = useForm({
-    product: {
+
         title: props.product.title,
         description: props.product.description,
         content: props.product.content,
@@ -32,42 +33,51 @@ const form = useForm({
         qty: props.product.qty,
         category_id: props.product.category_id,
         product_group_id: props.product.product_group_id,
-    },
-    images: props.product.images,
+
+    images: props.product.images.map(img => img.id),
+    new_images: null,
     params: [],
 });
 
 const page = usePage();
 const isSuccess = ref(false);
 const selectedCategory = props.categories[props.product.category_id];
-const images = ref(props.product.images | null);
+const existingImages = ref([...props.product.images]);
+const newImages = ref([]);
 
 const handleSubmit = () => {
+    // router.post(route('admin.products.update', { product: props.product.id }), {
+    //     _method: 'put',
+    //     form
+    // })
+
+    // 4. Отправляем с правильными headers
     form.put(route('admin.products.update', { product: props.product.id }), {
         onSuccess: () => {
             isSuccess.value = true;
-        },
+            form.new_images = null; // Очищаем после успеха
+        }
     });
 };
 
 const handleSelection = (data) => {
-    form.product.category_id = data?.id ?? null;
+    form.category_id = data?.id ?? null;
     selectedCategory.value = data ?? null;
 };
 
 const handleImageChange = (images) => {
-    form.images = images.target.files;
+    form.new_images = images.target.files;
 };
 
 const deleteImage = (image) => {
     axios.delete(route('admin.images.destroy', image.id)).then((res) => {
-        form.images = form.images.filter((productImage) => productImage.id != image.id);
-        images.value = form.images;
+        form.images = form.images.filter((productImage) => productImage.id !== image.id);
+        existingImages.value = existingImages.value.filter((existingImage) => existingImage.id !== image.id);
     });
 };
 
 watch(
-    () => form.product.category_id,
+    () => form.category_id,
     (newValue) => {
         selectedCategory.value = newValue !== null ? props.categories[newValue] : null;
     },
@@ -89,33 +99,33 @@ watch(
             </Alert>
 
             <div class="form-group">
-                <Input type="text" v-model="form.product.title" class="form-input" placeholder="Title..." />
+                <Input type="text" v-model="form.title" class="form-input" placeholder="Title..." />
 
-                <div class="error-message" v-if="form.errors['product.title']">
-                    {{ form.errors['product.title'] }}
+                <div class="error-message" v-if="form.errors['title']">
+                    {{ form.errors['title'] }}
                 </div>
             </div>
 
             <div class="form-group">
-                <Textarea v-model="form.product.description" class="form-input" placeholder="Enter product description..." />
+                <Textarea v-model="form.description" class="form-input" placeholder="Enter product description..." />
 
-                <div class="error-message" v-if="form.errors['product.description']">
-                    {{ form.errors['product.description'] }}
+                <div class="error-message" v-if="form.errors['description']">
+                    {{ form.errors['description'] }}
                 </div>
             </div>
 
             <div class="form-group">
-                <Textarea v-model="form.product.content" class="form-input" placeholder="Enter product content..." />
+                <Textarea v-model="form.content" class="form-input" placeholder="Enter product content..." />
 
-                <div class="error-message" v-if="form.errors['product.content']">
-                    {{ form.errors['product.content'] }}
+                <div class="error-message" v-if="form.errors['content']">
+                    {{ form.errors['content'] }}
                 </div>
             </div>
 
             <div class="form-group">
                 <NumberField
                     id="price"
-                    v-model="form.product.price"
+                    v-model="form.price"
                     :default-value="0"
                     :min="0"
                     :format-options="{
@@ -137,7 +147,7 @@ watch(
             <div class="form-group">
                 <NumberField
                     id="oldPrice"
-                    v-model="form.product.old_price"
+                    v-model="form.old_price"
                     :default-value="0"
                     :min="0"
                     :format-options="{
@@ -157,7 +167,7 @@ watch(
             </div>
 
             <div class="form-group">
-                <NumberField v-model="form.product.qty" id="qty" :default-value="0" :min="0">
+                <NumberField v-model="form.qty" id="qty" :default-value="0" :min="0">
                     <Label for="qyt">Quantity</Label>
                     <NumberFieldContent class="bg-white">
                         <NumberFieldDecrement />
@@ -168,7 +178,7 @@ watch(
             </div>
 
             <div class="form-group">
-                <Select v-model="form.product.product_group_id">
+                <Select v-model="form.product_group_id">
                     <SelectTrigger class="bg-white">
                         <SelectValue placeholder="Select filter type..." />
                     </SelectTrigger>
@@ -182,8 +192,8 @@ watch(
                     </SelectContent>
                 </Select>
 
-                <div class="error-message" v-if="form.errors['product.product_group_id']">
-                    {{ form.errors['product.product_group_id'] }}
+                <div class="error-message" v-if="form.errors['product_group_id']">
+                    {{ form.errors['product_group_id'] }}
                 </div>
             </div>
 
@@ -194,8 +204,8 @@ watch(
                     nameSelect="category"
                     @update:selected-entity="handleSelection"
                 />
-                <div class="error-message" v-if="form.errors['product.category_id']">
-                    {{ form.errors['product.category_id'] }}
+                <div class="error-message" v-if="form.errors['category_id']">
+                    {{ form.errors['category_id'] }}
                 </div>
             </div>
 
@@ -203,7 +213,7 @@ watch(
                 <Label for="images">Images</Label>
                 <Input id="images" multiple type="file" class="bg-white" @change="handleImageChange" />
 
-                <div v-for="(image, index) in images" :key="index">
+                <div v-for="(image, index) in existingImages" :key="index">
                     <span v-if="form.errors[`images.${index}`]" class="text-red-500">
                         {{ form.errors[`images.${index}`] }}
                     </span>
@@ -212,7 +222,7 @@ watch(
 
             <div>
                 <div class="mb-4 flex justify-between">
-                    <div v-for="image in images">
+                    <div v-for="image in existingImages">
                         <div class="text-right">
                             <Link @click.prevent="deleteImage(image)" href="#" class="inline-block">
                                 <X />
@@ -246,8 +256,8 @@ watch(
             <!--                    </SelectContent>-->
             <!--                </Select>-->
 
-            <!--                <div class="error-message" v-if="form.errors['product.params']">-->
-            <!--                    {{ form.errors['product.params'] }}-->
+            <!--                <div class="error-message" v-if="form.errors['params']">-->
+            <!--                    {{ form.errors['params'] }}-->
             <!--                </div>-->
             <!--            </div>-->
 

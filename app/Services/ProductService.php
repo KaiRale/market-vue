@@ -16,8 +16,11 @@ class ProductService
 
     public static function update(Product $product, array $data): Product
     {
-        $product->update($data);
-        ImageService::storeBatch($product, $data['new_images']);
+        $product->update($data['product']);
+
+        if(isset($data['new_images'])) {
+            ImageService::storeBatch($product, $data['new_images']);
+        }
 
         return $product->fresh();
     }

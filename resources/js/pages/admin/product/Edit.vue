@@ -12,7 +12,6 @@ import { Link, useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { X } from 'lucide-vue-next';
 import { defineProps, ref, watch } from 'vue';
-import { router } from '@inertiajs/vue3'
 
 const props = defineProps<{
     categories: array;
@@ -24,7 +23,7 @@ const props = defineProps<{
 }>();
 
 const form = useForm({
-
+    product: {
         title: props.product.title,
         description: props.product.description,
         content: props.product.content,
@@ -33,7 +32,7 @@ const form = useForm({
         qty: props.product.qty,
         category_id: props.product.category_id,
         product_group_id: props.product.product_group_id,
-
+    },
     images: props.product.images.map(img => img.id),
     new_images: null,
     params: [],
@@ -43,21 +42,35 @@ const page = usePage();
 const isSuccess = ref(false);
 const selectedCategory = props.categories[props.product.category_id];
 const existingImages = ref([...props.product.images]);
-const newImages = ref([]);
 
 const handleSubmit = () => {
-    // router.post(route('admin.products.update', { product: props.product.id }), {
-    //     _method: 'put',
-    //     form
-    // })
+    const formData = {...form.data()};
 
-    // 4. Отправляем с правильными headers
-    form.put(route('admin.products.update', { product: props.product.id }), {
-        onSuccess: () => {
-            isSuccess.value = true;
-            form.new_images = null; // Очищаем после успеха
+    if (formData.new_images) {
+        formData.new_images = Array.from(formData.new_images);
+    }
+    formData._method = 'patch'
+
+    axios.post(route('admin.products.update', props.product.id), formData, {
+        headers: {
+            "Content-Type": "multipart/form-data"
         }
-    });
+    })
+        .then(res => {
+            existingImages.value = res.data.product.images
+            isSuccess.value = true
+            page.props.flash.success = res.data.success
+            console.log()
+        })
+        .catch(uploadError => {
+            if (uploadError.response?.data?.errors) {
+                form.errors = uploadError.response.data.errors;
+
+                for (const key in form.errors){
+                    form.errors[key] = form.errors[key].toString();
+                }
+            }
+        });
 };
 
 const handleSelection = (data) => {
@@ -99,33 +112,33 @@ watch(
             </Alert>
 
             <div class="form-group">
-                <Input type="text" v-model="form.title" class="form-input" placeholder="Title..." />
+                <Input type="text" v-model="form.product.title" class="form-input" placeholder="Title..." />
 
-                <div class="error-message" v-if="form.errors['title']">
-                    {{ form.errors['title'] }}
+                <div class="error-message" v-if="form.errors['product.title']">
+                    {{ form.errors['product.title'] }}
                 </div>
             </div>
 
             <div class="form-group">
-                <Textarea v-model="form.description" class="form-input" placeholder="Enter product description..." />
+                <Textarea v-model="form.product.description" class="form-input" placeholder="Enter product description..." />
 
-                <div class="error-message" v-if="form.errors['description']">
-                    {{ form.errors['description'] }}
+                <div class="error-message" v-if="form.errors['product.description']">
+                    {{ form.errors['product.description'] }}
                 </div>
             </div>
 
             <div class="form-group">
-                <Textarea v-model="form.content" class="form-input" placeholder="Enter product content..." />
+                <Textarea v-model="form.product.content" class="form-input" placeholder="Enter product content..." />
 
-                <div class="error-message" v-if="form.errors['content']">
-                    {{ form.errors['content'] }}
+                <div class="error-message" v-if="form.errors['product.content']">
+                    {{ form.errors['product.content'] }}
                 </div>
             </div>
 
             <div class="form-group">
                 <NumberField
                     id="price"
-                    v-model="form.price"
+                    v-model="form.product.price"
                     :default-value="0"
                     :min="0"
                     :format-options="{
@@ -147,7 +160,7 @@ watch(
             <div class="form-group">
                 <NumberField
                     id="oldPrice"
-                    v-model="form.old_price"
+                    v-model="form.product.old_price"
                     :default-value="0"
                     :min="0"
                     :format-options="{
@@ -167,7 +180,7 @@ watch(
             </div>
 
             <div class="form-group">
-                <NumberField v-model="form.qty" id="qty" :default-value="0" :min="0">
+                <NumberField v-model="form.product.qty" id="qty" :default-value="0" :min="0">
                     <Label for="qyt">Quantity</Label>
                     <NumberFieldContent class="bg-white">
                         <NumberFieldDecrement />
@@ -178,7 +191,7 @@ watch(
             </div>
 
             <div class="form-group">
-                <Select v-model="form.product_group_id">
+                <Select v-model="form.product.product_group_id">
                     <SelectTrigger class="bg-white">
                         <SelectValue placeholder="Select filter type..." />
                     </SelectTrigger>
@@ -192,8 +205,8 @@ watch(
                     </SelectContent>
                 </Select>
 
-                <div class="error-message" v-if="form.errors['product_group_id']">
-                    {{ form.errors['product_group_id'] }}
+                <div class="error-message" v-if="form.errors['product.product_group_id']">
+                    {{ form.errors['product.product_group_id'] }}
                 </div>
             </div>
 
@@ -204,8 +217,8 @@ watch(
                     nameSelect="category"
                     @update:selected-entity="handleSelection"
                 />
-                <div class="error-message" v-if="form.errors['category_id']">
-                    {{ form.errors['category_id'] }}
+                <div class="error-message" v-if="form.errors['product.category_id']">
+                    {{ form.errors['product.category_id'] }}
                 </div>
             </div>
 
@@ -214,8 +227,8 @@ watch(
                 <Input id="images" multiple type="file" class="bg-white" @change="handleImageChange" />
 
                 <div v-for="(image, index) in existingImages" :key="index">
-                    <span v-if="form.errors[`images.${index}`]" class="text-red-500">
-                        {{ form.errors[`images.${index}`] }}
+                    <span v-if="form.errors[`new_images.${index}`]" class="text-red-500">
+                        {{ form.errors[`new_images.${index}`] }}
                     </span>
                 </div>
             </div>
@@ -242,7 +255,7 @@ watch(
             <!--            </div>-->
 
             <!--            <div class="form-group">-->
-            <!--                <Select v-model="form.params">-->
+            <!--                <Select v-model="form.product.params">-->
             <!--                    <SelectTrigger class="bg-white">-->
             <!--                        <SelectValue placeholder="Select filter type..." />-->
             <!--                    </SelectTrigger>-->
@@ -256,8 +269,8 @@ watch(
             <!--                    </SelectContent>-->
             <!--                </Select>-->
 
-            <!--                <div class="error-message" v-if="form.errors['params']">-->
-            <!--                    {{ form.errors['params'] }}-->
+            <!--                <div class="error-message" v-if="form.errors['product.params']">-->
+            <!--                    {{ form.errors['product.params'] }}-->
             <!--                </div>-->
             <!--            </div>-->
 

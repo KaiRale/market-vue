@@ -8,11 +8,9 @@ use App\Http\Requests\Admin\Product\UpdateRequest;
 use App\Http\Resources\Product\ProductResource;
 use App\Http\Resources\ProductGroup\ProductGroupResource;
 use App\Models\Category;
-use App\Models\Image;
 use App\Models\Product;
 use App\Models\ProductGroup;
 use App\Services\ProductService;
-use Illuminate\Http\Response;
 use Inertia\Inertia;
 
 class ProductController extends Controller
@@ -22,10 +20,10 @@ class ProductController extends Controller
      */
     public function index()
     {
-       $products = Product::all();
-       $products = ProductResource::collection($products)->resolve();
+        $products = Product::all();
+        $products = ProductResource::collection($products)->resolve();
 
-       return Inertia::render('admin/product/Index', compact('products'));
+        return Inertia::render('admin/product/Index', compact('products'));
     }
 
     /**
@@ -36,8 +34,8 @@ class ProductController extends Controller
         $categories = Category::all()->keyBy('id');
         $categoryTree = Category::buildTree($categories);
         $productGroups = ProductGroupResource::collection(ProductGroup::all())->resolve();
-//        $images = Image::with(['produtc'])
-        return Inertia::render('admin/product/Create', compact('categories','categoryTree', 'productGroups'));
+
+        return Inertia::render('admin/product/Create', compact('categories', 'categoryTree', 'productGroups'));
     }
 
     /**
@@ -81,11 +79,13 @@ class ProductController extends Controller
      */
     public function update(UpdateRequest $request, Product $product)
     {
-//        dd($request);
         $data = $request->validated();
         $product = ProductService::update($product, $data);
 
-        return ;
+        return response()->json([
+            'product' => ProductResource::make($product)->resolve(),
+            'success' => "Product $product[title] updated successfully"
+        ]);
 
     }
 

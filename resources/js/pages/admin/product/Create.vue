@@ -10,7 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
 import { Plus } from 'lucide-vue-next';
-import { defineProps, ref, watch, onMounted } from 'vue';
+import { defineProps, ref, watch } from 'vue';
+import { X } from 'lucide-vue-next';
 
 const props = defineProps<{
     categories: array;
@@ -70,6 +71,10 @@ const addParameter = () => {
         value: paramOption.value.value
     })
 };
+
+const removeParam = (index) => {
+    form.params.splice(index, 1)
+}
 
 watch(
     () => form.product.category_id,
@@ -269,8 +274,27 @@ watch(
                 </div>
             </div>
 
-            <div class="form-group">
-                <div v-for="param in form.params">{{ param.title }} - {{ param.value }}</div>
+            <div class="form-group param-list">
+                <div
+                    v-for="(param, index) in form.params"
+                    :key="index"
+                    class="param-item"
+                >
+                    <div class="param-content">
+                        <span class="param-title">{{ param.title }}:</span>
+                        <span class="param-value">{{ param.value }}</span>
+                    </div>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        @click="removeParam(index)"
+                        class="remove-btn"
+                        title="Remove parameter"
+                    >
+                        <X class="h-4 w-4" />
+                    </Button>
+                </div>
             </div>
 
             <div class="form-actions">
@@ -424,5 +448,51 @@ watch(
 .no-arrows .number-field-input {
     text-align: left;
     padding-left: 0.75rem;
+}
+
+.param-list {
+    margin-top: 0.5rem;
+}
+
+.param-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    background-color: white;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s;
+}
+
+.param-content {
+    flex: 1;
+    display: flex;
+    gap: 0.5rem;
+    overflow: hidden;
+}
+
+.param-title {
+    font-weight: 500;
+}
+
+.param-value {
+    color: #64748b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.remove-btn {
+    color: #94a3b8;
+    width: 24px;
+    height: 24px;
+}
+
+.remove-btn:hover {
+    color: #ef4444;
+    cursor: pointer;
+    background-color: rgba(239, 68, 68, 0.1);
 }
 </style>

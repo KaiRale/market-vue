@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Product;
 
 use App\Http\Resources\Image\ImageResource;
+use App\Http\Resources\Param\ParamResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -18,6 +19,7 @@ class ProductResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
+            'article' => $this->article,
             'description' => $this->description,
             'content' => $this->content,
             'price' => $this->price,
@@ -25,7 +27,8 @@ class ProductResource extends JsonResource
             'qty' => $this->qty,
             'category_id' => $this->category_id,
             'product_group_id' => $this->product_group_id,
-            'images' => ImageResource::collection($this->images)->resolve()
+            'images' => ImageResource::collection($this->images)->resolve(),
+            'params' => ParamResource::collection($this->params)->resolve()
         ];
     }
 }

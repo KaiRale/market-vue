@@ -6,6 +6,7 @@ import { Link } from '@inertiajs/vue3';
 defineProps<{
     product: object;
 }>();
+
 </script>
 
 <template>
@@ -28,6 +29,12 @@ defineProps<{
                             <TableCell>Title</TableCell>
                             <TableCell>
                                 {{ product.title }}
+                            </TableCell>
+                        </TableRow>
+                        <TableRow class="body-row">
+                            <TableCell>Article</TableCell>
+                            <TableCell>
+                                {{ product.article }}
                             </TableCell>
                         </TableRow>
                         <TableRow class="body-row">

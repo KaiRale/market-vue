@@ -18,6 +18,7 @@ class StoreRequest extends FormRequest
             'product.title' => ['required','string','max:255'],
             'product.description' => ['required','string'],
             'product.content' => ['required','string'],
+            'product.article' => ['required','string','max:255', 'unique:products,article'],
             'product.price' => ['required','numeric'],
             'product.old_price' => ['required','numeric'],
             'product.qty' => ['required','numeric'],
@@ -25,6 +26,20 @@ class StoreRequest extends FormRequest
             'product.product_group_id' => ['required','integer','exists:product_groups,id'],
             'images' => ['nullable','array'],
             'images.*' => ['image','mimes:jpeg,png,jpg,gif,svg'],
+            'params' => ['nullable','array'],
+            'params.*.id' => ['required', 'integer','exists:params,id'],
+            'params.*.value' => ['required', 'string'],
         ];
+    }
+
+    protected function passedValidation()
+    {
+        $validated = $this->validated();
+
+        return $this->merge([
+            'product' => $validated['product'],
+            'images' => $this->images ?? [],
+            'params' => $validated['params'],
+        ]);
     }
 }

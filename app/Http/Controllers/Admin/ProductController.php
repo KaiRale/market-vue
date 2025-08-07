@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Product\StoreRequest;
 use App\Http\Requests\Admin\Product\UpdateRequest;
+use App\Http\Resources\Param\ParamResource;
 use App\Http\Resources\Product\ProductResource;
 use App\Http\Resources\ProductGroup\ProductGroupResource;
 use App\Models\Category;
+use App\Models\Param;
 use App\Models\Product;
 use App\Models\ProductGroup;
 use App\Services\ProductService;
@@ -34,8 +36,14 @@ class ProductController extends Controller
         $categories = Category::all()->keyBy('id');
         $categoryTree = Category::buildTree($categories);
         $productGroups = ProductGroupResource::collection(ProductGroup::all())->resolve();
+        $params = ParamResource::collection(Param::all())->resolve();
 
-        return Inertia::render('admin/product/Create', compact('categories', 'categoryTree', 'productGroups'));
+        return Inertia::render('admin/product/Create', compact(
+            'categories',
+            'categoryTree',
+            'productGroups',
+            'params'
+        ));
     }
 
     /**
@@ -43,8 +51,7 @@ class ProductController extends Controller
      */
     public function store(StoreRequest $request)
     {
-        $data = $request->validated();
-
+        $data = $request->validationData();
         $product = ProductService::store($data);
 
         return back()->with('success', "Product $product[title] created successfully");

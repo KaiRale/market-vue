@@ -10,6 +10,7 @@ class ProductService
     {
         $product = Product::create($data['product']);
         ImageService::storeBatch($product, $data['images']);
+        ProductService::attachBatchParams($product, $data);
 
         return $product;
     }
@@ -23,5 +24,13 @@ class ProductService
         }
 
         return $product->fresh();
+    }
+    public static function attachBatchParams(Product $product, array $data): void
+    {
+        foreach ($data['params'] as $param) {
+            $product->params()->attach($param['id'], [
+                'value' => $param['value']
+            ]);
+        }
     }
 }

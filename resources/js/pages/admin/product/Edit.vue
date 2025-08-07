@@ -18,7 +18,6 @@ const props = defineProps<{
     categoryTree: array;
     productGroups: array;
     product: object;
-    // images: null;
     // params: null
 }>();
 

@@ -5,10 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Product\StoreRequest;
 use App\Http\Requests\Admin\Product\UpdateRequest;
+use App\Http\Resources\Param\ParamResource;
 use App\Http\Resources\Product\ProductResource;
+use App\Http\Resources\ProductGroup\ProductGroupResource;
+use App\Models\Category;
+use App\Models\Param;
 use App\Models\Product;
+use App\Models\ProductGroup;
 use App\Services\ProductService;
-use Illuminate\Http\Response;
 use Inertia\Inertia;
 
 class ProductController extends Controller
@@ -18,10 +22,10 @@ class ProductController extends Controller
      */
     public function index()
     {
-       $products = Product::all();
-       $products = ProductResource::collection($products)->resolve();
+        $products = Product::all();
+        $products = ProductResource::collection($products)->resolve();
 
-       return Inertia::render('admin/product/Index', compact('products'));
+        return Inertia::render('admin/product/Index', compact('products'));
     }
 
     /**
@@ -29,7 +33,17 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return Inertia::render('admin/product/Create');
+        $categories = Category::all()->keyBy('id');
+        $categoryTree = Category::buildTree($categories);
+        $productGroups = ProductGroupResource::collection(ProductGroup::all())->resolve();
+        $params = ParamResource::collection(Param::all())->resolve();
+
+        return Inertia::render('admin/product/Create', compact(
+            'categories',
+            'categoryTree',
+            'productGroups',
+            'params'
+        ));
     }
 
     /**
@@ -37,11 +51,10 @@ class ProductController extends Controller
      */
     public function store(StoreRequest $request)
     {
-        $data = $request->validated();
+        $data = $request->validationData();
         $product = ProductService::store($data);
 
-        // resolve - чтобы дополнительно не оборачиволось в ключ дата
-        return ProductResource::make($product)->resolve();
+        return back()->with('success', "Product $product[title] created successfully");
     }
 
     /**
@@ -60,8 +73,11 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $product = ProductResource::make($product)->resolve();
+        $categories = Category::all()->keyBy('id');
+        $categoryTree = Category::buildTree($categories);
+        $productGroups = ProductGroup::all()->keyBy('id');
 
-        return Inertia::render('admin/product/Edit', compact('product'));
+        return Inertia::render('admin/product/Edit', compact('product', 'categories', 'categories', 'categoryTree', 'productGroups'));
 
     }
 
@@ -73,8 +89,11 @@ class ProductController extends Controller
         $data = $request->validated();
         $product = ProductService::update($product, $data);
 
-        // resolve - чтобы дополнительно не оборачиволось в ключ дата
-        return ProductResource::make($product)->resolve();
+        return response()->json([
+            'product' => ProductResource::make($product)->resolve(),
+            'success' => "Product $product[title] updated successfully"
+        ]);
+
     }
 
     /**
@@ -84,8 +103,7 @@ class ProductController extends Controller
     {
         $product->delete();
 
-        return response()->json([
-           'message' => 'Product deleted successfully'
-        ], Response::HTTP_OK);
+        return redirect()->back()->with('success', "Product deleted successfully");
+
     }
 }

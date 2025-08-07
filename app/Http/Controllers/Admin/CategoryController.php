@@ -30,11 +30,10 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        $categories = CategoryResource::collection(Category::all())->resolve();
+        $categories = Category::all()->keyBy('id');
+        $categoryTree = Category::buildTree($categories);
 
-        return Inertia::render('admin/category/Create',[
-            'categories' => $categories
-        ]);
+        return Inertia::render('admin/category/Create', compact('categoryTree', 'categories'));
     }
 
     /**
@@ -46,7 +45,6 @@ class CategoryController extends Controller
         $data = $request->validated();
         $category = CategoryService::store($data);
 
-        // resolve - чтобы дополнительно не оборачиволось в ключ дата
         $category = CategoryResource::make($category)->resolve();
 
         return back()->with('success', "Category $category[title] created successfully");
@@ -68,9 +66,11 @@ class CategoryController extends Controller
     public function edit(Category $category)
     {
         $category = CategoryResource::make($category)->resolve();
-        $categories = CategoryResource::collection(Category::all()->except($category))->resolve();
+        $categories = Category::all()->except($category['id'])->keyBy('id');
 
-        return Inertia::render('admin/category/Edit', compact('category', 'categories'));
+        $categoryTree = Category::buildTree($categories);
+
+        return Inertia::render('admin/category/Edit', compact('category', 'categories', 'categoryTree'));
 
     }
 
@@ -83,7 +83,6 @@ class CategoryController extends Controller
 
         $category = CategoryService::update($category, $data);
 
-        // resolve - чтобы дополнительно не оборачиволось в ключ дата
         $category = CategoryResource::make($category)->resolve();
 
         return redirect()->back()->with('success', "Category $category[title] updated successfully");

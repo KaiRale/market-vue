@@ -29,62 +29,165 @@ const onDelete = (id: number) => {
 
 <template>
     <AdminLayout>
-        <div class="mb-4">
-            <Link :href="route('admin.categories.create')" class="inline-block border border-[#1B206A] bg-[#252B7D] px-3 py-2 text-purple-50">
-                Add
-            </Link>
-        </div>
-        <Alert v-if="page.props.flash.success" class="mb-4 w-1/2 border-lime-400 bg-lime-200 text-cyan-950">
-            <AlertTitle>Success</AlertTitle>
-            <AlertDescription>
-                {{ page.props.flash.success }}
-            </AlertDescription>
-        </Alert>
-        <div>
-            <Table class="bg-white">
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>ID</TableHead>
-                        <TableHead class="w-[100px]"> Title</TableHead>
-                        <TableHead>Parent Category</TableHead>
-                        <TableHead class="text-center">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    <TableRow v-for="category in categories" :key="category.id">
-                        <TableCell>{{ category.id }}</TableCell>
-                        <TableCell class="font-medium">
-                            {{ category.title }}
-                        </TableCell>
-                        <TableCell>{{ category.parent_id }}</TableCell>
-                        <TableCell class="space-x-2 text-center">
-                            <Link :href="route('admin.categories.edit', { id: category.id })">
-                                <Button class="bg-cyan-400">Edit</Button>
-                            </Link>
+        <div class="main-container">
+            <div class="main-actions">
+                <Link :href="route('admin.categories.create')" class="submit-button">
+                    Add Category
+                </Link>
+            </div>
+            <Alert v-if="page.props.flash.success" class="success-alert">
+                <AlertTitle>Success</AlertTitle>
+                <AlertDescription>
+                    {{ page.props.flash.success }}
+                </AlertDescription>
+            </Alert>
+            <div>
+                <Table class="table-wrapper">
+                    <TableHeader>
+                        <TableRow class="header-row">
+                            <TableHead>ID</TableHead>
+                            <TableHead>Title</TableHead>
+                            <TableHead>Parent Category</TableHead>
+                            <TableHead class="text-center">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        <TableRow v-for="category in categories" :key="category.id" class="body-row">
+                            <TableCell>{{ category.id }}</TableCell>
+                            <TableCell>
+                                <Link :href="route('admin.categories.show', { id: category.id })">
+                                    {{ category.title }}
+                                </Link>
+                            </TableCell>
+                            <TableCell>{{ category.parent_id }}</TableCell>
+                            <TableCell class="actions-cell">
+                                <Link :href="route('admin.categories.edit', { category: category.id })">
+                                    <Button class="edit-button">Edit</Button>
+                                </Link>
 
-                            <AlertDialog>
-                                <AlertDialogTrigger as-child>
-                                    <Button variant="destructive"> Delete</Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            This action cannot be undone. This will permanently delete category.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <Button variant="destructive" @click="onDelete(category.id)">Delete</Button>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                        </TableCell>
-                    </TableRow>
-                </TableBody>
-            </Table>
+                                <AlertDialog>
+                                    <AlertDialogTrigger as-child>
+                                        <Button class="delete-button">Delete</Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                This action cannot be undone. This will permanently delete category.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <Button class="delete-button" @click="onDelete(category.id)">Delete</Button>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </div>
         </div>
     </AdminLayout>
 </template>
 
-<style scoped></style>
+<style scoped>
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.main-actions {
+    margin-bottom: 1.5rem;
+}
+
+.table-wrapper {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.header-row {
+    background-color: #f8fafc;
+}
+
+.header-row :deep(th) {
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+.body-row :deep(td) {
+    padding: 0.75rem 1rem;
+}
+
+.body-row:hover {
+    background-color: #f8fafc;
+}
+
+.actions-cell {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.submit-button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #1e40af;
+    background-color: #1e40af;
+    color: white;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.submit-button:hover {
+    background-color: #1e3a8a;
+    border-color: #1e3a8a;
+}
+
+.edit-button {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+    color: white;
+}
+
+.edit-button:hover {
+    background-color: #2563eb;
+    border-color: #2563eb;
+}
+
+.delete-button {
+    background-color: #ef4444;
+    border-color: #ef4444;
+    color: white;
+}
+
+.delete-button:hover {
+    background-color: #dc2626;
+    border-color: #dc2626;
+}
+
+.success-alert {
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid #86efac;
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.error-message {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #ef4444;
+}
+</style>

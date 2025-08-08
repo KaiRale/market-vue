@@ -19,12 +19,15 @@ class ProductService
     {
         $product->update($data['product']);
 
+        ProductService::syncBatchParams($product, $data);
+
         if(isset($data['new_images'])) {
             ImageService::storeBatch($product, $data['new_images']);
         }
 
         return $product->fresh();
     }
+
     public static function attachBatchParams(Product $product, array $data): void
     {
         foreach ($data['params'] as $param) {
@@ -32,5 +35,11 @@ class ProductService
                 'value' => $param['value']
             ]);
         }
+    }
+
+    public static function syncBatchParams(Product $product, array $data): void
+    {
+        $product->params()->detach();
+        ProductService::attachBatchParams($product, $data);
     }
 }

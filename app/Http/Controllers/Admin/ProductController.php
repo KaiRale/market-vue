@@ -76,8 +76,16 @@ class ProductController extends Controller
         $categories = Category::all()->keyBy('id');
         $categoryTree = Category::buildTree($categories);
         $productGroups = ProductGroup::all()->keyBy('id');
+        $params = ParamResource::collection(Param::all())->resolve();
 
-        return Inertia::render('admin/product/Edit', compact('product', 'categories', 'categories', 'categoryTree', 'productGroups'));
+        return Inertia::render('admin/product/Edit', compact(
+            'product',
+            'categories',
+            'categories',
+            'categoryTree',
+            'productGroups',
+            'params'
+        ));
 
     }
 
@@ -86,7 +94,7 @@ class ProductController extends Controller
      */
     public function update(UpdateRequest $request, Product $product)
     {
-        $data = $request->validated();
+        $data = $request->validationData();
         $product = ProductService::update($product, $data);
 
         return response()->json([

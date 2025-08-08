@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
-import { X } from 'lucide-vue-next';
+import { Plus, X } from 'lucide-vue-next';
 import { defineProps, ref, watch } from 'vue';
 
 const props = defineProps<{
@@ -18,12 +18,13 @@ const props = defineProps<{
     categoryTree: array;
     productGroups: array;
     product: object;
-    // params: null
+    params: array;
 }>();
 
 const form = useForm({
     product: {
         title: props.product.title,
+        article: props.product.article,
         description: props.product.description,
         content: props.product.content,
         price: Number(props.product.price),
@@ -32,40 +33,41 @@ const form = useForm({
         category_id: props.product.category_id,
         product_group_id: props.product.product_group_id,
     },
-    images: props.product.images.map(img => img.id),
+    images: props.product.images.map((img) => img.id),
     new_images: null,
-    params: [],
+    params: props.product.params,
 });
 
 const page = usePage();
 const isSuccess = ref(false);
 const selectedCategory = props.categories[props.product.category_id];
 const existingImages = ref([...props.product.images]);
+const paramOption = ref({ paramObj: {} });
 
 const handleSubmit = () => {
-    const formData = {...form.data()};
+    const formData = { ...form.data() };
 
     if (formData.new_images) {
         formData.new_images = Array.from(formData.new_images);
     }
-    formData._method = 'patch'
+    formData._method = 'patch';
 
-    axios.post(route('admin.products.update', props.product.id), formData, {
-        headers: {
-            "Content-Type": "multipart/form-data"
-        }
-    })
-        .then(res => {
-            existingImages.value = res.data.product.images
-            isSuccess.value = true
-            page.props.flash.success = res.data.success
-            console.log()
+    axios
+        .post(route('admin.products.update', props.product.id), formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
         })
-        .catch(uploadError => {
+        .then((res) => {
+            existingImages.value = res.data.product.images;
+            isSuccess.value = true;
+            page.props.flash.success = res.data.success;
+        })
+        .catch((uploadError) => {
             if (uploadError.response?.data?.errors) {
                 form.errors = uploadError.response.data.errors;
 
-                for (const key in form.errors){
+                for (const key in form.errors) {
                     form.errors[key] = form.errors[key].toString();
                 }
             }
@@ -88,11 +90,31 @@ const deleteImage = (image) => {
     });
 };
 
+const addParameter = () => {
+    form.params.push({
+        id: paramOption.value.paramObj.id,
+        title: paramOption.value.paramObj.title,
+        value: paramOption.value.value,
+    });
+};
+
+const removeParam = (index) => {
+    form.params.splice(index, 1);
+};
+
 watch(
     () => form.category_id,
     (newValue) => {
         selectedCategory.value = newValue !== null ? props.categories[newValue] : null;
     },
+);
+
+watch(
+    () => form.data(),
+    () => {
+        isSuccess.value = false;
+    },
+    { deep: true },
 );
 </script>
 
@@ -115,6 +137,15 @@ watch(
 
                 <div class="error-message" v-if="form.errors['product.title']">
                     {{ form.errors['product.title'] }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <Label for="product-article">Article</Label>
+                <Input id="product-article" type="text" class="form-input" v-model="form.product.article" placeholder="Article..." />
+
+                <div class="error-message" v-if="form.errors['product.article']">
+                    {{ form.errors['product.article'] }}
                 </div>
             </div>
 
@@ -244,34 +275,50 @@ watch(
                     </div>
                 </div>
             </div>
-            <!--            <div class="form-group">-->
-            <!--                <Label for="images">Images</Label>-->
-            <!--                <Input id="images"-->
-            <!--                       type="file"-->
-            <!--                       class="bg-white"-->
-            <!--                       v-bind="form.images"-->
-            <!--                />-->
-            <!--            </div>-->
 
-            <!--            <div class="form-group">-->
-            <!--                <Select v-model="form.product.params">-->
-            <!--                    <SelectTrigger class="bg-white">-->
-            <!--                        <SelectValue placeholder="Select filter type..." />-->
-            <!--                    </SelectTrigger>-->
-            <!--                    <SelectContent>-->
-            <!--                        <SelectGroup>-->
-            <!--                            <SelectItem :value="null"> Select product group...</SelectItem>-->
-            <!--                            <SelectItem v-for="param in params" :value="param.id">-->
-            <!--                                {{ param.title }}-->
-            <!--                            </SelectItem>-->
-            <!--                        </SelectGroup>-->
-            <!--                    </SelectContent>-->
-            <!--                </Select>-->
+            <div class="form-group parameters-group">
+                <div class="parameter-select">
+                    <Label for="product-parameters">Parameters</Label>
+                    <Select v-model="paramOption.paramObj" id="product-parameters">
+                        <SelectTrigger class="compact-trigger bg-white">
+                            <SelectValue placeholder="Select parameter..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectItem :value="{}">Select parameter...</SelectItem>
+                                <SelectItem v-for="param in params" :value="param">
+                                    {{ param.title }}
+                                </SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                    <div class="error-message" v-if="form.errors['product.params']">
+                        {{ form.errors['product.params'] }}
+                    </div>
+                </div>
 
-            <!--                <div class="error-message" v-if="form.errors['product.params']">-->
-            <!--                    {{ form.errors['product.params'] }}-->
-            <!--                </div>-->
-            <!--            </div>-->
+                <div class="parameter-value">
+                    <Input v-model="paramOption.value" type="text" class="form-input compact-input" placeholder="Value..." />
+                </div>
+
+                <div class="parameter-add">
+                    <Button type="button" variant="outline" size="sm" @click="addParameter" class="add-button">
+                        <Plus class="h-4 w-4" />
+                    </Button>
+                </div>
+            </div>
+
+            <div class="form-group param-list">
+                <div v-for="(param, index) in form.params" :key="index" class="param-item">
+                    <div class="param-content">
+                        <span class="param-title">{{ param.title }}:</span>
+                        <span class="param-value">{{ param.value }}</span>
+                    </div>
+                    <Button type="button" variant="ghost" size="icon" @click="removeParam(index)" class="remove-btn" title="Remove parameter">
+                        <X class="h-4 w-4" />
+                    </Button>
+                </div>
+            </div>
 
             <div class="form-actions">
                 <Button type="submit" :disabled="form.processing" class="submit-button"> Update</Button>
@@ -371,5 +418,100 @@ watch(
     margin-top: 0.5rem;
     font-size: 0.875rem;
     color: #ef4444;
+}
+
+.parameters-group {
+    display: flex;
+    align-items: flex-end; /* Выравниваем по нижнему краю */
+    gap: 0.5rem; /* Уменьшили расстояние между элементами */
+    margin-bottom: 1.5rem;
+}
+
+.parameter-select {
+    flex: 2;
+    min-width: 180px;
+    max-width: 180px; /* Фиксируем ширину */
+}
+
+.parameter-value {
+    flex: 1;
+    min-width: 120px;
+}
+
+.add-button {
+    padding: 0.35rem 0.5rem;
+    height: 36px; /* Фиксированная высота как у инпутов */
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.add-button:hover {
+    cursor: pointer;
+}
+
+/* Компактные стили для элементов формы */
+.compact-trigger {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.compact-input {
+    height: 36px;
+    padding: 0.35rem 0.75rem;
+}
+
+.no-arrows .number-field-input {
+    text-align: left;
+    padding-left: 0.75rem;
+}
+
+.param-list {
+    margin-top: 0.5rem;
+}
+
+.param-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    background-color: white;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s;
+}
+
+.param-content {
+    flex: 1;
+    display: flex;
+    gap: 0.5rem;
+    overflow: hidden;
+}
+
+.param-title {
+    font-weight: 500;
+}
+
+.param-value {
+    color: #64748b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.remove-btn {
+    color: #94a3b8;
+    width: 24px;
+    height: 24px;
+}
+
+.remove-btn:hover {
+    color: #ef4444;
+    cursor: pointer;
+    background-color: rgba(239, 68, 68, 0.1);
 }
 </style>

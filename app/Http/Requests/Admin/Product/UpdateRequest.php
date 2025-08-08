@@ -18,7 +18,7 @@ class UpdateRequest extends FormRequest
             'product.title' => 'required|string|max:255',
             'product.description' => 'required|string',
             'product.content' => 'required|string',
-            'product.article' => 'required|string|max:255|unique:products,article',
+//            'product.article' => 'required|string|max:255|unique:products,article',
             'product.price' => 'required|numeric',
             'product.old_price' => 'required|numeric',
             'product.qty' => 'required|integer',
@@ -32,5 +32,16 @@ class UpdateRequest extends FormRequest
             'params.*.id' => 'required|integer|exists:params,id',
             'params.*.value' => 'required|string',
         ];
+    }
+
+    protected function passedValidation()
+    {
+        $validated = $this->validated();
+
+        return $this->merge([
+            'product' => $validated['product'],
+            'images' => $this->images ?? [],
+            'params' => $validated['params'],
+        ]);
     }
 }

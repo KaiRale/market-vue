@@ -14,6 +14,10 @@ import {
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-vue-next';
+import { ChevronDown } from 'lucide-vue-next';
+import { Pencil } from 'lucide-vue-next';
+import { Trash } from 'lucide-vue-next';
 
 defineProps<{
     products: array;
@@ -49,6 +53,7 @@ const onDelete = (id: number) => {
                             <TableHead>Price</TableHead>
                             <TableHead>Quantity</TableHead>
                             <TableHead class="text-center">Actions</TableHead>
+                            <TableHead class="text-center">Products</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -62,13 +67,17 @@ const onDelete = (id: number) => {
                             <TableCell>{{ product.price }}</TableCell>
                             <TableCell>{{ product.qty }}</TableCell>
                             <TableCell class="actions-cell">
+                                <Link :href="route('admin.products.children-create', { product: product.id })">
+                                    <Button class="add-children-button"><Plus/></Button>
+                                </Link>
+
                                 <Link :href="route('admin.products.edit', { product: product.id })">
-                                    <Button class="edit-button">Edit</Button>
+                                    <Button class="edit-button"><Pencil/></Button>
                                 </Link>
 
                                 <AlertDialog>
                                     <AlertDialogTrigger as-child>
-                                        <Button class="delete-button">Delete</Button>
+                                        <Button class="delete-button"><Trash /></Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
                                         <AlertDialogHeader>
@@ -83,6 +92,9 @@ const onDelete = (id: number) => {
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>
+                            </TableCell>
+                            <TableCell class="text-center">
+                                <Button class="show-children-button"> <ChevronDown /></Button>
                             </TableCell>
                         </TableRow>
                     </TableBody>
@@ -153,6 +165,18 @@ const onDelete = (id: number) => {
     border-color: #1e3a8a;
 }
 
+.add-children-button {
+    background-color: #5ed38e;
+    border-color: #239150;
+    color: white;
+}
+
+.add-children-button:hover {
+    cursor: pointer;
+    background-color: #4faf75;
+    border-color: #239150;
+}
+
 .edit-button {
     background-color: #3b82f6;
     border-color: #3b82f6;
@@ -160,6 +184,7 @@ const onDelete = (id: number) => {
 }
 
 .edit-button:hover {
+    cursor: pointer;
     background-color: #2563eb;
     border-color: #2563eb;
 }
@@ -171,8 +196,21 @@ const onDelete = (id: number) => {
 }
 
 .delete-button:hover {
+    cursor: pointer;
     background-color: #dc2626;
     border-color: #dc2626;
+}
+
+.show-children-button {
+    background-color: #807f7f;
+    border-color: #4e4e4e;
+    color: white;
+}
+
+.show-children-button:hover {
+    cursor: pointer;
+    background-color: #5e5e5e;
+    border-color: #4e4e4e;
 }
 
 .success-alert {

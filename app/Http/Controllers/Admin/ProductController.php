@@ -22,7 +22,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::all();
+        $products = Product::whereNull('parent_id')->get();
         $products = ProductResource::collection($products)->resolve();
 
         return Inertia::render('admin/product/Index', compact('products'));
@@ -43,6 +43,23 @@ class ProductController extends Controller
             'categoryTree',
             'productGroups',
             'params'
+        ));
+    }
+
+    public function createChild(Product $product)
+    {
+        $categories = Category::all()->keyBy('id');
+        $categoryTree = Category::buildTree($categories);
+        $productGroups = ProductGroupResource::collection(ProductGroup::all())->resolve();
+        $params = ParamResource::collection(Param::all())->resolve();
+        $product = ProductResource::make($product)->resolve();
+
+        return Inertia::render('admin/product/CreateChild', compact(
+            'categories',
+            'categoryTree',
+            'productGroups',
+            'params',
+            'product'
         ));
     }
 

@@ -43,6 +43,7 @@ const onProductDeleted = (product) => {
                         <TableRow class="header-row">
                             <TableHead>ID</TableHead>
                             <TableHead>Title</TableHead>
+                            <TableHead>Article</TableHead>
                             <TableHead>Price</TableHead>
                             <TableHead>Quantity</TableHead>
                             <TableHead class="text-center">Actions</TableHead>

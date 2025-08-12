@@ -34,7 +34,7 @@ const form = useForm({
         product_group_id: props.product.product_group_id,
         parent_id: props.product.id
     },
-    images: props.product.images.map((img) => img.id),
+    images: [],
     new_images: null,
     params: props.product.params,
 });

@@ -27,7 +27,6 @@ const page = usePage();
 const isSuccess = ref(false);
 
 const handleSubmit = () =>{
-    console.log(form)
     form.put(route('admin.params.update', {param: props.param}), {
         onSuccess: () => {
             isSuccess.value = true

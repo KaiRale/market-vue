@@ -3,10 +3,9 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Link } from '@inertiajs/vue3';
 
-const props = defineProps<{
+defineProps<{
     product: object;
 }>();
-console.log(props.product);
 </script>
 
 <template>

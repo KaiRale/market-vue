@@ -28,6 +28,11 @@ class ProductController extends Controller
         return Inertia::render('admin/product/Index', compact('products'));
     }
 
+    public function indexChild(Product $product)
+    {
+        return ProductResource::collection($product->children)->resolve();
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -128,7 +133,11 @@ class ProductController extends Controller
     {
         $product->delete();
 
-        return redirect()->back()->with('success', "Product deleted successfully");
+        return response()->json([
+            'product' => ProductResource::make($product)->resolve(),
+            'success' => "Product deleted successfully"
+        ]);
+//        back()->with('success', "Product deleted successfully");
 
     }
 }

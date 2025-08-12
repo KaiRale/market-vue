@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import EntityOptions from '@/components/EntityTreeSelect/EntityOptions.vue';
+import EntityOptions from '@/components/entity-tree-select/EntityOptions.vue';
 import { defineEmits, defineProps, ref, onMounted, onUnmounted } from 'vue';
 
 interface Props {

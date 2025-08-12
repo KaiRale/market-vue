@@ -40,7 +40,7 @@ class StoreRequest extends FormRequest
         return $this->merge([
             'product' => $validated['product'],
             'images' => $this->images ?? [],
-            'params' => $validated['params'],
+            'params' => $validated['params'] ?? [],
         ]);
     }
 }

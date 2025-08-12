@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import EntityTreeSelect from '@/components/EntityTreeSelect/EntityTreeSelect.vue';
+import EntityTreeSelect from '@/components/entity-tree-select/EntityTreeSelect.vue';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,8 +20,6 @@ const props = defineProps<{
     params: array;
     product: object;
 }>();
-
-console.log(props.product)
 
 const form = useForm({
     product: {
@@ -50,10 +48,7 @@ const imageInput = ref<HTMLElement | null>(null)
 const handleSubmit = () => {
     form.post(route('admin.products.store'), {
         onSuccess: () => {
-            form.reset();
             imageInput.value.value = null
-            // paramOption.value = {paramObj: {}};
-
             isSuccess.value = true;
         },
     });
@@ -86,7 +81,6 @@ watch(
         selectedCategory.value = newValue !== null ? props.categories[newValue] : null;
     },
 );
-
 
 watch(
     () => form.data(),

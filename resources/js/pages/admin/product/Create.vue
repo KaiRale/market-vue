@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import EntityTreeSelect from '@/components/EntityTreeSelect/EntityTreeSelect.vue';
+import EntityTreeSelect from '@/components/entity-tree-select/EntityTreeSelect.vue';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

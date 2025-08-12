@@ -8,7 +8,7 @@ import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncre
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AdminLayout from '@/layouts/AdminLayout.vue';
-import { Link, useForm, usePage } from '@inertiajs/vue3';
+import { Link, router, useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { Plus, X } from 'lucide-vue-next';
 import { defineProps, ref, watch } from 'vue';
@@ -41,8 +41,9 @@ const form = useForm({
 const page = usePage();
 const isSuccess = ref(false);
 const selectedCategory = ref(props.categories[props.product.category_id]);
-const existingImages = ref([...props.product.images]);
+const existingImages = ref(props.product.images);
 const paramOption = ref({ paramObj: {} });
+const imageInput = ref<HTMLElement | null>(null)
 
 const handleSubmit = () => {
     const formData = { ...form.data() };
@@ -62,6 +63,7 @@ const handleSubmit = () => {
             existingImages.value = res.data.product.images;
             isSuccess.value = true;
             page.props.flash.success = res.data.success;
+            imageInput.value.value = null;
         })
         .catch((uploadError) => {
             if (uploadError.response?.data?.errors) {
@@ -84,9 +86,12 @@ const handleImageChange = (images) => {
 };
 
 const deleteImage = (image) => {
-    axios.delete(route('admin.images.destroy', image.id)).then((res) => {
-        form.images = form.images.filter((productImage) => productImage.id !== image.id);
-        existingImages.value = existingImages.value.filter((existingImage) => existingImage.id !== image.id);
+    router.delete(route('admin.images.destroy', image.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            form.images = form.images.filter((id) => id !== image.id);
+            existingImages.value = existingImages.value.filter(img => img.id !== image.id);
+        }
     });
 };
 
@@ -265,6 +270,7 @@ watch(
                     id="product-images"
                     multiple
                     type="file"
+                    ref="imageInput"
                     class="form-input bg-white"
                     @change="handleImageChange" />
 
@@ -275,18 +281,28 @@ watch(
                 </div>
             </div>
 
-            <div>
-                <div class="mb-4 flex justify-between">
-                    <div v-for="image in existingImages">
-                        <div class="text-right">
-                            <Link @click.prevent="deleteImage(image)" href="#" class="inline-block">
-                                <X />
-                            </Link>
-                        </div>
-                        <img :src="image.url" :alt="product.title" class="mb-4" />
+            <div class="product-existing-images">
+                <div v-if="existingImages.length" class="images-grid">
+                    <div v-for="image in existingImages" :key="image.id" class="image-container">
+                        <img
+                            :src="image.url"
+                            :alt="product.title"
+                            class="product-image"
+                        />
+                        <button
+                            @click.prevent="deleteImage(image)"
+                            class="delete-btn"
+                            title="Delete image"
+                        >
+                            <X class="h-4 w-4" />
+                        </button>
                     </div>
                 </div>
+                <div v-else class="no-images">
+                    No images available for this product
+                </div>
             </div>
+
 
             <div class="form-group parameters-group">
                 <div class="parameter-select">
@@ -363,7 +379,6 @@ watch(
 .form-group label {
     margin-bottom: 0.5rem;
 }
-
 
 .form-input {
     width: 100%;
@@ -530,5 +545,59 @@ watch(
     color: #ef4444;
     cursor: pointer;
     background-color: rgba(239, 68, 68, 0.1);
+}
+
+.product-existing-images{
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.images-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.image-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.2s;
+}
+
+.image-container:hover .product-image {
+    opacity: 0.8;
+}
+
+.delete-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.image-container:hover .delete-btn {
+    opacity: 1;
 }
 </style>

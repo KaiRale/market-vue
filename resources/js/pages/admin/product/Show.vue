@@ -98,7 +98,6 @@ defineProps<{
                             :alt="product.title"
                             class="product-image"
                         />
-<!--                        <div class="image-meta">Image #{{ image.order + 1 }}</div>-->
                     </div>
                 </div>
                 <div v-else class="no-images">

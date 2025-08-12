@@ -14,8 +14,9 @@ class ImageController extends Controller
     {
         ImageService::destroy($image);
 
-        return response()->json([
-            'success' => "Image deleted successfully"
+        return back()->with([
+            'success' => 'Image deleted',
+            'deleted_image_id' => $image->id
         ]);
     }
 }

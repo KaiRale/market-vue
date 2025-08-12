@@ -87,6 +87,7 @@ watch(() => form.data(), () => {
 
             <div class="form-group">
                 <EntityTreeSelect
+                    id="category"
                     :selectedEntity="selectedCategory"
                     :entityTree="categoryTree"
                     nameSelect="category"

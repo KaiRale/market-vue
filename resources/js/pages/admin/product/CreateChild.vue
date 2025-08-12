@@ -41,7 +41,7 @@ const form = useForm({
 
 const page = usePage();
 const isSuccess = ref(false);
-const selectedCategory = ref(null);
+const selectedCategory = ref(props.categories[props.product.category_id]);
 const paramOption = ref({ paramObj: {} });
 const imageInput = ref<HTMLElement | null>(null)
 
@@ -197,7 +197,7 @@ watch(
             </div>
 
             <div class="form-group">
-                <Label for="product-group">Quantity</Label>
+                <Label for="product-group">Group</Label>
                 <Select v-model="form.product.product_group_id" id="product-group">
                     <SelectTrigger class="bg-white">
                         <SelectValue placeholder="Select filter type..." />
@@ -218,9 +218,10 @@ watch(
             </div>
 
             <div class="form-group">
-                <Label for="product-category">Quantity</Label>
+                <Label for="product-category">Category</Label>
                 <EntityTreeSelect
                     id="product-category"
+                    required
                     :selectedEntity="selectedCategory"
                     :entityTree="categoryTree"
                     nameSelect="category"

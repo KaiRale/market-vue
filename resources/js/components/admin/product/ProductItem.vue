@@ -56,6 +56,7 @@ const getProductChildren = () => {
                 {{ product.title }}
             </Link>
         </TableCell>
+        <TableCell>{{ product.article }}</TableCell>
         <TableCell>{{ product.price }}</TableCell>
         <TableCell>{{ product.qty }}</TableCell>
         <TableCell class="actions-cell">

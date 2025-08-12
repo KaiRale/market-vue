@@ -3,13 +3,16 @@ import EntityOptions from '@/components/entity-tree-select/EntityOptions.vue';
 import { defineEmits, defineProps, ref, onMounted, onUnmounted } from 'vue';
 
 interface Props {
+    id: string;
+    required?: boolean;
     selectedEntity?: object | null;
     entityTree: Array;
     level?: number;
     nameSelect: string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
+    required: false,
     level: 0,
     selectedEntity: null,
 });
@@ -43,12 +46,12 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="custom-select relative w-full" :class="{ 'is-open': isOpen }">
+    <div :id="id" class="custom-select relative w-full" :class="{ 'is-open': isOpen }">
         <div class="select-header" @click.stop="toggleDropdown">
             <span class="select-header-text" v-if="selectedEntity?.title">
                 {{ selectedEntity.title }}
             </span>
-            <span class="select-header-text" v-else-if="selectedEntity === null">
+            <span class="select-header-text" v-else-if="selectedEntity === null && !required">
                 No parent
             </span>
             <span class="select-header-placeholder" v-else>
@@ -57,14 +60,14 @@ onUnmounted(() => {
             <span class="select-arrow">▼</span>
         </div>
         <div class="select-content" v-show="isOpen">
-            <div class="select-option no-parent-option">
+            <div v-if="!required"  class="select-option no-parent-option">
                 <label class="option-label" @click="selectItem(null)">
                     <span class="option-check" v-if="selectedEntity === null">
                         <svg class="check-icon" viewBox="0 0 12 10">
                             <path d="M1 5L4 8L11 1" stroke="currentColor" stroke-width="2" fill="none"/>
                         </svg>
                     </span>
-                    <span class="option-text" :class="{ 'selected': selectedEntity === null }">No parent</span>
+                    <span class="option-text" :class="{ 'selected': selectedEntity === null}">No parent</span>
                 </label>
             </div>
             <EntityOptions :entityTree="entityTree"

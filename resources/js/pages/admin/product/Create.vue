@@ -179,7 +179,7 @@ watch(
             </div>
 
             <div class="form-group">
-                <NumberField v-model="form.product.qty" id="qty" :default-value="0" :min="0">
+                <NumberField v-model="form.product.qty" id="product-qyt" :default-value="0" :min="0">
                     <Label for="product-qyt">Quantity</Label>
                     <NumberFieldContent class="bg-white">
                         <NumberFieldDecrement />
@@ -190,8 +190,8 @@ watch(
             </div>
 
             <div class="form-group">
-                <Label for="product-group">Quantity</Label>
-                <Select v-model="form.product.product_group_id" id="product-group">
+                <Label for="product-group">Group</Label>
+                <Select id="product-group" v-model="form.product.product_group_id">
                     <SelectTrigger class="bg-white">
                         <SelectValue placeholder="Select filter type..." />
                     </SelectTrigger>
@@ -211,9 +211,10 @@ watch(
             </div>
 
             <div class="form-group">
-                <Label for="product-category">Quantity</Label>
+                <Label for="product-category">Category</Label>
                 <EntityTreeSelect
                     id="product-category"
+                    required
                     :selectedEntity="selectedCategory"
                     :entityTree="categoryTree"
                     nameSelect="category"
@@ -225,9 +226,9 @@ watch(
             </div>
 
             <div class="form-group" ref="fileInputWrapper">
-                <Label for="images">Images</Label>
+                <Label for="product-images">Images</Label>
                 <input
-                    id="images"
+                    id="product-images"
                     multiple
                     type="file"
                     ref="imageInput"

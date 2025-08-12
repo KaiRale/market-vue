@@ -4,7 +4,7 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import EntityTreeSelect from '@/components/EntityTreeSelect/EntityTreeSelect.vue';
+import EntityTreeSelect from '@/components/entity-tree-select/EntityTreeSelect.vue';
 import { ref, watch, onMounted, defineProps } from 'vue';
 
 interface Category {
@@ -87,6 +87,7 @@ watch(() => form.data(), () => {
 
             <div class="form-group">
                 <EntityTreeSelect
+                    id="category"
                     :selectedEntity="selectedCategory"
                     :entityTree="categoryTree"
                     nameSelect="category"

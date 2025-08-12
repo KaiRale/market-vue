@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { watch, ref, defineProps } from 'vue';
 
-import EntityTreeSelect from '@/components/EntityTreeSelect/EntityTreeSelect.vue';
+import EntityTreeSelect from '@/components/entity-tree-select/EntityTreeSelect.vue';
 
 const props = defineProps<{
     categoryTree: array;
@@ -80,6 +80,7 @@ watch(() => [form.title, form.parent_id], () => {
 
             <div class="form-group">
                 <EntityTreeSelect
+                    id="category"
                     :selectedEntity="selectedCategory"
                     :entityTree="categoryTree"
                     nameSelect="category"

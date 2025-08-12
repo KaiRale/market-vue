@@ -16,6 +16,7 @@ class StoreRequest extends FormRequest
     {
         return [
             'product.title' => ['required','string','max:255'],
+            'product.parent_id' => ['nullable','integer','exists:products,id'],
             'product.description' => ['required','string'],
             'product.content' => ['required','string'],
             'product.article' => ['required','string','max:255', 'unique:products,article'],
@@ -39,7 +40,7 @@ class StoreRequest extends FormRequest
         return $this->merge([
             'product' => $validated['product'],
             'images' => $this->images ?? [],
-            'params' => $validated['params'],
+            'params' => $validated['params'] ?? [],
         ]);
     }
 }

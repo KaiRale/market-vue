@@ -22,10 +22,15 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::all();
+        $products = Product::whereNull('parent_id')->get();
         $products = ProductResource::collection($products)->resolve();
 
         return Inertia::render('admin/product/Index', compact('products'));
+    }
+
+    public function indexChild(Product $product)
+    {
+        return ProductResource::collection($product->children)->resolve();
     }
 
     /**
@@ -43,6 +48,23 @@ class ProductController extends Controller
             'categoryTree',
             'productGroups',
             'params'
+        ));
+    }
+
+    public function createChild(Product $product)
+    {
+        $categories = Category::all()->keyBy('id');
+        $categoryTree = Category::buildTree($categories);
+        $productGroups = ProductGroupResource::collection(ProductGroup::all())->resolve();
+        $params = ParamResource::collection(Param::all())->resolve();
+        $product = ProductResource::make($product)->resolve();
+
+        return Inertia::render('admin/product/CreateChild', compact(
+            'categories',
+            'categoryTree',
+            'productGroups',
+            'params',
+            'product'
         ));
     }
 
@@ -76,8 +98,16 @@ class ProductController extends Controller
         $categories = Category::all()->keyBy('id');
         $categoryTree = Category::buildTree($categories);
         $productGroups = ProductGroup::all()->keyBy('id');
+        $params = ParamResource::collection(Param::all())->resolve();
 
-        return Inertia::render('admin/product/Edit', compact('product', 'categories', 'categories', 'categoryTree', 'productGroups'));
+        return Inertia::render('admin/product/Edit', compact(
+            'product',
+            'categories',
+            'categories',
+            'categoryTree',
+            'productGroups',
+            'params'
+        ));
 
     }
 
@@ -86,7 +116,7 @@ class ProductController extends Controller
      */
     public function update(UpdateRequest $request, Product $product)
     {
-        $data = $request->validated();
+        $data = $request->validationData();
         $product = ProductService::update($product, $data);
 
         return response()->json([
@@ -103,7 +133,11 @@ class ProductController extends Controller
     {
         $product->delete();
 
-        return redirect()->back()->with('success', "Product deleted successfully");
+        return response()->json([
+            'product' => ProductResource::make($product)->resolve(),
+            'success' => "Product deleted successfully"
+        ]);
+//        back()->with('success', "Product deleted successfully");
 
     }
 }

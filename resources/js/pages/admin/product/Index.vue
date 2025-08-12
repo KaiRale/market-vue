@@ -1,28 +1,27 @@
 <script setup lang="ts">
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import AdminLayout from '@/layouts/AdminLayout.vue';
-import { Link, router, usePage } from '@inertiajs/vue3';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import {
-    AlertDialog,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import AdminLayout from '@/layouts/AdminLayout.vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import ProductItem from '@/components/admin/product/ProductItem.vue';
+import { ref } from 'vue';
 
-defineProps<{
+const props = defineProps<{
     products: array;
 }>();
 
 const page = usePage();
+const productsData = ref(props.products);
 
-const onDelete = (id: number) => {
-    router.delete(route('admin.products.destroy', { product: id }));
+const onProductDeleted = (product) => {
+    if (!product.parent_id){
+        productsData.value = productsData.value.filter(productData => productData.id !== product.id);
+    }
+    productsData.value.forEach((parentProduct) => {
+        if (parentProduct.id === product.parent_id) {
+            parentProduct.children = parentProduct.children.filter(child => child.id !== product.id);
+        }
+    });
 };
 </script>
 
@@ -30,9 +29,7 @@ const onDelete = (id: number) => {
     <AdminLayout>
         <div class="main-container">
             <div class="main-actions">
-                <Link :href="route('admin.products.create')" class="submit-button">
-                    Add Product
-                </Link>
+                <Link :href="route('admin.products.create')" class="submit-button"> Add Product</Link>
             </div>
             <Alert v-if="page.props.flash.success" class="success-alert">
                 <AlertTitle>Success</AlertTitle>
@@ -46,45 +43,20 @@ const onDelete = (id: number) => {
                         <TableRow class="header-row">
                             <TableHead>ID</TableHead>
                             <TableHead>Title</TableHead>
+                            <TableHead>Article</TableHead>
                             <TableHead>Price</TableHead>
                             <TableHead>Quantity</TableHead>
                             <TableHead class="text-center">Actions</TableHead>
+                            <TableHead class="text-center">Products</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow v-for="product in products" :key="product.id" class="body-row">
-                            <TableCell>{{ product.id }}</TableCell>
-                            <TableCell>
-                                <Link :href="route('admin.products.show', { product: product.id })">
-                                    {{ product.title }}
-                                </Link>
-                            </TableCell>
-                            <TableCell>{{ product.price }}</TableCell>
-                            <TableCell>{{ product.qty }}</TableCell>
-                            <TableCell class="actions-cell">
-                                <Link :href="route('admin.products.edit', { product: product.id })">
-                                    <Button class="edit-button">Edit</Button>
-                                </Link>
-
-                                <AlertDialog>
-                                    <AlertDialogTrigger as-child>
-                                        <Button class="delete-button">Delete</Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                This action cannot be undone. This will permanently delete product.
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <Button class="delete-button" @click="onDelete(product.id)">Delete</Button>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            </TableCell>
-                        </TableRow>
+                        <template v-for="product in productsData" :key="product.id">
+                            <ProductItem @productDeleted="onProductDeleted" :product="product" />
+                            <template v-if="product.children?.length > 0" v-for="productChild in product.children">
+                                <ProductItem @productDeleted="onProductDeleted" :product="productChild" />
+                            </template>
+                        </template>
                     </TableBody>
                 </Table>
             </div>
@@ -97,7 +69,10 @@ const onDelete = (id: number) => {
     max-width: 1200px;
     margin: 0 auto;
     padding: 1rem;
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family:
+        system-ui,
+        -apple-system,
+        sans-serif;
 }
 
 .main-actions {
@@ -125,16 +100,6 @@ const onDelete = (id: number) => {
     padding: 0.75rem 1rem;
 }
 
-.body-row:hover {
-    background-color: #f8fafc;
-}
-
-.actions-cell {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: center;
-}
-
 .submit-button {
     display: inline-block;
     padding: 0.5rem 1rem;
@@ -153,27 +118,7 @@ const onDelete = (id: number) => {
     border-color: #1e3a8a;
 }
 
-.edit-button {
-    background-color: #3b82f6;
-    border-color: #3b82f6;
-    color: white;
-}
 
-.edit-button:hover {
-    background-color: #2563eb;
-    border-color: #2563eb;
-}
-
-.delete-button {
-    background-color: #ef4444;
-    border-color: #ef4444;
-    color: white;
-}
-
-.delete-button:hover {
-    background-color: #dc2626;
-    border-color: #dc2626;
-}
 
 .success-alert {
     width: 100%;

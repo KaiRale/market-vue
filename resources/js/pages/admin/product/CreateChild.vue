@@ -8,17 +8,17 @@ import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncre
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AdminLayout from '@/layouts/AdminLayout.vue';
-import { Link, router, useForm, usePage } from '@inertiajs/vue3';
-import axios from 'axios';
-import { Plus, X } from 'lucide-vue-next';
+import { Link, useForm, usePage } from '@inertiajs/vue3';
+import { Plus } from 'lucide-vue-next';
 import { defineProps, ref, watch } from 'vue';
+import { X } from 'lucide-vue-next';
 
 const props = defineProps<{
     categories: array;
     categoryTree: array;
     productGroups: array;
-    product: object;
     params: array;
+    product: object;
 }>();
 
 const form = useForm({
@@ -32,8 +32,9 @@ const form = useForm({
         qty: props.product.qty,
         category_id: props.product.category_id,
         product_group_id: props.product.product_group_id,
+        parent_id: props.product.id
     },
-    images: props.product.images.map((img) => img.id),
+    images: [],
     new_images: null,
     params: props.product.params,
 });
@@ -41,39 +42,16 @@ const form = useForm({
 const page = usePage();
 const isSuccess = ref(false);
 const selectedCategory = ref(props.categories[props.product.category_id]);
-const existingImages = ref(props.product.images);
 const paramOption = ref({ paramObj: {} });
 const imageInput = ref<HTMLElement | null>(null)
 
 const handleSubmit = () => {
-    const formData = { ...form.data() };
-
-    if (formData.new_images) {
-        formData.new_images = Array.from(formData.new_images);
-    }
-    formData._method = 'patch';
-
-    axios
-        .post(route('admin.products.update', props.product.id), formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        })
-        .then((res) => {
-            existingImages.value = res.data.product.images;
+    form.post(route('admin.products.store'), {
+        onSuccess: () => {
+            imageInput.value.value = null
             isSuccess.value = true;
-            page.props.flash.success = res.data.success;
-            imageInput.value.value = null;
-        })
-        .catch((uploadError) => {
-            if (uploadError.response?.data?.errors) {
-                form.errors = uploadError.response.data.errors;
-
-                for (const key in form.errors) {
-                    form.errors[key] = form.errors[key].toString();
-                }
-            }
-        });
+        },
+    });
 };
 
 const handleSelection = (data) => {
@@ -82,33 +60,23 @@ const handleSelection = (data) => {
 };
 
 const handleImageChange = (images) => {
-    form.new_images = images.target.files;
-};
-
-const deleteImage = (image) => {
-    router.delete(route('admin.images.destroy', image.id), {
-        preserveScroll: true,
-        onSuccess: () => {
-            form.images = form.images.filter((id) => id !== image.id);
-            existingImages.value = existingImages.value.filter(img => img.id !== image.id);
-        }
-    });
+    form.images = images.target.files;
 };
 
 const addParameter = () => {
     form.params.push({
         id: paramOption.value.paramObj.id,
         title: paramOption.value.paramObj.title,
-        value: paramOption.value.value,
-    });
+        value: paramOption.value.value
+    })
 };
 
 const removeParam = (index) => {
-    form.params.splice(index, 1);
-};
+    form.params.splice(index, 1)
+}
 
 watch(
-    () => form.category_id,
+    () => form.product.category_id,
     (newValue) => {
         selectedCategory.value = newValue !== null ? props.categories[newValue] : null;
     },
@@ -218,7 +186,7 @@ watch(
             </div>
 
             <div class="form-group">
-                <NumberField v-model="form.product.qty" id="product-qyt" :default-value="0" :min="0">
+                <NumberField v-model="form.product.qty" id="qty" :default-value="0" :min="0">
                     <Label for="product-qyt">Quantity</Label>
                     <NumberFieldContent class="bg-white">
                         <NumberFieldDecrement />
@@ -230,7 +198,7 @@ watch(
 
             <div class="form-group">
                 <Label for="product-group">Group</Label>
-                <Select id="product-group" v-model="form.product.product_group_id">
+                <Select v-model="form.product.product_group_id" id="product-group">
                     <SelectTrigger class="bg-white">
                         <SelectValue placeholder="Select filter type..." />
                     </SelectTrigger>
@@ -264,45 +232,23 @@ watch(
                 </div>
             </div>
 
-            <div class="form-group">
-                <Label for="product-images">Images</Label>
+            <div class="form-group" ref="fileInputWrapper">
+                <Label for="images">Images</Label>
                 <input
-                    id="product-images"
+                    id="images"
                     multiple
                     type="file"
                     ref="imageInput"
                     class="form-input bg-white"
-                    @change="handleImageChange" />
+                    @change="handleImageChange"
+                />
 
-                <div v-for="(image, index) in existingImages" :key="index">
-                    <span v-if="form.errors[`new_images.${index}`]" class="text-red-500">
-                        {{ form.errors[`new_images.${index}`] }}
+                <div v-for="(image, index) in form.images" :key="index">
+                    <span v-if="form.errors[`images.${index}`]" class="text-red-500">
+                        {{ form.errors[`images.${index}`] }}
                     </span>
                 </div>
             </div>
-
-            <div class="product-existing-images">
-                <div v-if="existingImages.length" class="images-grid">
-                    <div v-for="image in existingImages" :key="image.id" class="image-container">
-                        <img
-                            :src="image.url"
-                            :alt="product.title"
-                            class="product-image"
-                        />
-                        <button
-                            @click.prevent="deleteImage(image)"
-                            class="delete-btn"
-                            title="Delete image"
-                        >
-                            <X class="h-4 w-4" />
-                        </button>
-                    </div>
-                </div>
-                <div v-else class="no-images">
-                    No images available for this product
-                </div>
-            </div>
-
 
             <div class="form-group parameters-group">
                 <div class="parameter-select">
@@ -337,19 +283,30 @@ watch(
             </div>
 
             <div class="form-group param-list">
-                <div v-for="(param, index) in form.params" :key="index" class="param-item">
+                <div
+                    v-for="(param, index) in form.params"
+                    :key="index"
+                    class="param-item"
+                >
                     <div class="param-content">
                         <span class="param-title">{{ param.title }}:</span>
                         <span class="param-value">{{ param.value }}</span>
                     </div>
-                    <Button type="button" variant="ghost" size="icon" @click="removeParam(index)" class="remove-btn" title="Remove parameter">
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        @click="removeParam(index)"
+                        class="remove-btn"
+                        title="Remove parameter"
+                    >
                         <X class="h-4 w-4" />
                     </Button>
                 </div>
             </div>
 
             <div class="form-actions">
-                <Button type="submit" :disabled="form.processing" class="submit-button"> Update</Button>
+                <Button type="submit" :disabled="form.processing" class="submit-button"> Create</Button>
             </div>
         </form>
     </AdminLayout>
@@ -545,59 +502,5 @@ watch(
     color: #ef4444;
     cursor: pointer;
     background-color: rgba(239, 68, 68, 0.1);
-}
-
-.product-existing-images{
-    margin-bottom: 1.5rem;
-    width: 100%;
-}
-
-.images-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.image-container {
-    position: relative;
-    width: 120px;
-    height: 120px;
-    border: 1px solid #e2e8f0;
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.product-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: opacity 0.2s;
-}
-
-.image-container:hover .product-image {
-    opacity: 0.8;
-}
-
-.delete-btn {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(239, 68, 68, 0.9);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-
-.image-container:hover .delete-btn {
-    opacity: 1;
 }
 </style>

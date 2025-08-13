@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
 
 </script>
 
 <template>
     <section class="w-full bg-[#4A2877] p-4 border-b border-gray-100 text-white">
         <div>
-            Market Admin
+            Market
         </div>
     </section>
 

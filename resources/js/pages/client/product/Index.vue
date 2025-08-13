@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
-import { Link } from '@inertiajs/vue3';
 import MainLayout from '@/layouts/MainLayout.vue';
+import ProductItem from '@/components/client/product/ProductItem.vue';
 
 defineProps<{
     products: Array;
@@ -18,21 +18,10 @@ defineProps<{
     </aside>
     <article class="w-3/4 bg-purple-50 text-[#060B42] p-4">
         <div class="grid grid-cols-3 gap-4">
-            <div v-for="product in products" class="p-4 border border-gray-200 bg-white">
-                <h3>{{product.title}}</h3>
-                <img :src="product.preview_image_url" :alt="product.title">
-                <div class="flex items-center justify-between">
-                    <p>{{product.price}}</p>
-                    <p>{{product.old_price}}</p>
-                </div>
-                <div>
-                    <Link
-                        href="#"
-                        class="block p-4 bg-indigo-600 text-white text-center">
-                        Buy
-                    </Link>
-                </div>
-            </div>
+            <ProductItem
+                v-for="product in products"
+                :product="product"
+            />
         </div>
     </article>
     </MainLayout>

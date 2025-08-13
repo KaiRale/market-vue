@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Product;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class ProductService
@@ -23,6 +24,11 @@ class ProductService
         }
 
         return $product;
+    }
+
+    public static function indexByCategories(array $categoryChildren): Collection
+    {
+       return Product::byCategories($categoryChildren)->get();
     }
 
     public static function update(Product $product, array $data): Product

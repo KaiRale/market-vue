@@ -33,6 +33,11 @@ class Product extends Model
         return $this->hasMany(Product::class, 'parent_id', 'id');
     }
 
+    public function childrenWithCategory()
+    {
+        return $this->children()->with('category');
+    }
+
     public function getPreviewImageUrlAttribute(): ?string
     {
         return $this->images()->first()->url ?? null;

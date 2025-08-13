@@ -31,7 +31,7 @@ class ProductController extends Controller
 
     public function indexChild(Product $product)
     {
-        return ProductResource::collection($product->children)->resolve();
+        return ProductResource::collection($product->childrenWithCategory)->resolve();
     }
 
     /**

@@ -23,6 +23,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::whereNull('parent_id')->get();
+        $products->load('category');
         $products = ProductResource::collection($products)->resolve();
 
         return Inertia::render('admin/product/Index', compact('products'));
@@ -84,6 +85,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
+        $product->load('category');
         $product = ProductResource::make($product)->resolve();
 
         return Inertia::render('admin/product/Show', compact('product'));

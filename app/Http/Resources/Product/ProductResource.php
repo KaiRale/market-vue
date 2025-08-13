@@ -30,7 +30,13 @@ class ProductResource extends JsonResource
             'product_group_id' => $this->product_group_id,
             'images' => ImageResource::collection($this->images)->resolve(),
             'preview_image_url' => $this->preview_image_url,
-            'params' => ParamWithPivotValueResource::collection($this->params)->resolve()
+            'params' => ParamWithPivotValueResource::collection($this->params)->resolve(),
+            'category' => $this->whenLoaded('category', function () {
+                return [
+                  'id' => $this->category->id,
+                  'title' => $this->category->title,
+                ];
+            }),
         ];
     }
 }

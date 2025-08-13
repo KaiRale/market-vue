@@ -15,7 +15,7 @@ defineProps<{
                 <Link :href="route('admin.products.index')" class="submit-button"> Back</Link>
             </div>
 
-            <div class="product-details content-section">
+            <div class="product-details">
                 <div class="product-info">
                     <h3 class="section-title">Main info</h3>
                     <Table class="table-wrapper">
@@ -68,6 +68,12 @@ defineProps<{
                                     {{ product.qty }}
                                 </TableCell>
                             </TableRow>
+                            <TableRow class="body-row">
+                                <TableCell>Category</TableCell>
+                                <TableCell>
+                                    {{ product.category.title }}
+                                </TableCell>
+                            </TableRow>
                         </TableBody>
                     </Table>
                 </div>
@@ -114,6 +120,7 @@ defineProps<{
     margin: 0 auto;
     padding: 1rem;
     font-family: system-ui, -apple-system, sans-serif;
+    overflow-x: hidden; /* Запрещаем горизонтальный скролл для всей страницы */
 }
 
 .main-actions {
@@ -121,14 +128,15 @@ defineProps<{
 }
 
 .product-details {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 2rem;
 }
 
 @media (min-width: 1024px) {
     .product-details {
-        grid-template-columns: 2fr 1fr;
+        display: grid;
+        grid-template-columns: 1fr; /* Только одна колонка */
     }
 }
 
@@ -137,10 +145,13 @@ defineProps<{
     border-radius: 6px;
     overflow: hidden;
     margin-bottom: 2rem;
+    table-layout: fixed; /* Фиксированная ширина таблицы */
+    width: 100%; /* Занимает всю доступную ширину */
 }
 
 .body-row :deep(td) {
     padding: 0.75rem 1rem;
+    word-wrap: break-word; /* Перенос длинных слов */
 }
 
 .body-row {
@@ -152,7 +163,19 @@ defineProps<{
     font-weight: 600;
     color: #334155;
     background-color: #f8fafc;
-    width: 30%;
+    width: 30%; /* Фиксированная ширина для первой колонки */
+    min-width: 150px; /* Минимальная ширина */
+}
+
+.body-row > td:last-child {
+    width: 70%; /* Фиксированная ширина для второй колонки */
+}
+
+/* Специальные стили для ячеек с длинным текстом */
+.body-row :deep(td:nth-child(2)) {
+    white-space: pre-line; /* Сохраняет переносы строк, но переносит по словам */
+    overflow-wrap: anywhere; /* Разрешает перенос в любом месте слова */
+    max-width: 0; /* Необходимо для корректной работы переносов */
 }
 
 .content-cell {
@@ -184,7 +207,6 @@ defineProps<{
     margin-top: 2rem;
 }
 
-/* Parameters Section */
 .section-title {
     font-size: 1.25rem;
     font-weight: 600;
@@ -192,6 +214,12 @@ defineProps<{
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
     border-bottom: 1px solid #e2e8f0;
+}
+
+/* Parameters Section */
+.parameters-section {
+    width: 100%;
+    margin-top: 2rem;
 }
 
 .param-list {
@@ -202,27 +230,38 @@ defineProps<{
 
 .param-item {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
     padding: 0.75rem;
     background-color: #f8fafc;
     border-radius: 6px;
     border: 1px solid #e2e8f0;
+    max-width: 320px;
 }
 
 .param-content {
     display: flex;
-    gap: 0.5rem;
-    align-items: center;
+    min-width: 0;
+    width: 100%;
 }
 
 .param-title {
     font-weight: 500;
     color: #334155;
+    flex-shrink: 0; /* Не дает сжиматься названию параметра */
+    margin-right: 0.5rem;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .param-list {
+        grid-template-columns: 1fr;
+    }
 }
 
 .param-value {
     color: #475569;
+    white-space: normal;
+    word-break: break-word;
+    overflow: hidden;
 }
 
 /* Images Section */
@@ -241,7 +280,7 @@ defineProps<{
 }
 
 .image-container:hover {
-    transform: translateY(-2px);
+    transform: none;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 

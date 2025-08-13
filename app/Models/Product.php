@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Observers\ProductObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -22,6 +23,11 @@ class Product extends Model
         return $this->belongsToMany(Param::class)->withPivot('value');
     }
 
+    public function category(): BelongsTo
+    {
+        return $this->BelongsTo(Category::class);
+    }
+
     public function children(): HasMany
     {
         return $this->hasMany(Product::class, 'parent_id', 'id');
@@ -31,4 +37,6 @@ class Product extends Model
     {
         return $this->images()->first()->url ?? null;
     }
+
+
 }

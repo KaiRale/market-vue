@@ -2,7 +2,7 @@
 import ProductItem from '@/components/client/product/ProductItem.vue';
 import MainLayout from '@/layouts/MainLayout.vue';
 import { Link } from '@inertiajs/vue3';
-// import { RouterLink } from 'vue-router';
+
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -16,6 +16,7 @@ defineProps<{
     products: Array;
     categoryBreadcrumb: Array;
     category: object;
+    params: Array;
 }>();
 </script>
 

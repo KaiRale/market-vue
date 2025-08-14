@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 // linked to observer for event listening
 #[ObservedBy(ProductObserver::class)]
@@ -44,9 +45,9 @@ class Product extends Model
         return $this->images()->first()->url ?? null;
     }
 
-    public function scopeByCategories(Builder $builder, array $categoryChildren): Builder
+    public function scopeByCategories(Builder $builder, Collection $categoryChildren): Builder
     {
-        return $builder->whereIn('category_id',array_column($categoryChildren, 'id'))
+        return $builder->whereIn('category_id', $categoryChildren->pluck('id'))
             ->whereNull('parent_id');
     }
 }

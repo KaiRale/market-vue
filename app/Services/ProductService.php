@@ -26,7 +26,7 @@ class ProductService
         return $product;
     }
 
-    public static function indexByCategories(array $categoryChildren): Collection
+    public static function indexByCategories(Collection $categoryChildren): Collection
     {
        return Product::byCategories($categoryChildren)->get();
     }

@@ -25,7 +25,7 @@ defineProps<{
             <nav></nav>
         </aside>
         <article class="w-3/4 bg-purple-50 p-4 text-[#060B42]">
-            <Breadcrumb>
+            <Breadcrumb class="mb-4">
                 <BreadcrumbList>
                     <template v-for="breadcrumb in categoryBreadcrumb">
                         <BreadcrumbItem>
@@ -44,11 +44,6 @@ defineProps<{
                 </BreadcrumbList>
             </Breadcrumb>
 
-            <div class="mb-4">
-                <Link v-for="breadcrumb in categoryBreadcrumb" :href="route('client.categories.products.index', breadcrumb.id)">
-                    {{ breadcrumb.title }}
-                </Link>
-            </div>
             <div class="grid grid-cols-3 gap-4">
                 <ProductItem v-for="product in products" :product="product" />
             </div>

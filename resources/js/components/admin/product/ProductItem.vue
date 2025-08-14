@@ -59,7 +59,11 @@ const getProductChildren = () => {
         <TableCell>{{ product.article }}</TableCell>
         <TableCell>{{ product.price }}</TableCell>
         <TableCell>{{ product.qty }}</TableCell>
-        <TableCell>{{ product.category.title }}</TableCell>
+        <TableCell>
+            <Link :href="route('admin.categories.show', { category: product.category.id })">
+                {{ product.category.title }}
+            </Link>
+        </TableCell>
         <TableCell class="actions-cell">
             <Link :href="route('admin.products.children-create', { product: product.id })">
                 <Button class="add-children-button">
